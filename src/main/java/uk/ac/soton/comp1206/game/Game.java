@@ -1,5 +1,6 @@
 package uk.ac.soton.comp1206.game;
 
+import java.util.Random;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.ac.soton.comp1206.component.GameBlock;
@@ -9,7 +10,7 @@ import uk.ac.soton.comp1206.component.GameBlock;
  * and to handle actions made by the player should take place inside this class.
  */
 public class Game {
-
+    private Random random = new Random();
     private static final Logger logger = LogManager.getLogger(Game.class);
 
     /**
@@ -26,6 +27,7 @@ public class Game {
      * The grid model linked to the game
      */
     protected final Grid grid;
+    private GamePiece currentPiece;
 
     /**
      * Create a new game with the specified rows and columns. Creates a corresponding grid model.
@@ -53,6 +55,7 @@ public class Game {
      */
     public void initialiseGame() {
         logger.info("Initialising game");
+        nextPiece();
     }
 
     /**
@@ -64,15 +67,14 @@ public class Game {
         int x = gameBlock.getX();
         int y = gameBlock.getY();
 
-        //Get the new value for this block
-        int previousValue = grid.get(x,y);
-        int newValue = previousValue + 1;
-        if (newValue  > GamePiece.PIECES) {
-            newValue = 0;
+        // Plays the piece in the x, y clicked by the user
+        if (grid.canPlayPiece(currentPiece, x,y)) {
+            // Can play the piece
+            grid.playPiece(currentPiece, x, y);
+            nextPiece();
+        } else {
+            // Cannot play the piece
         }
-
-        //Update the grid with the new value
-        grid.set(x,y,newValue);
     }
 
     /**
@@ -99,5 +101,17 @@ public class Game {
         return rows;
     }
 
+    public GamePiece nextPiece() {
+        currentPiece = spawnPiece();
+        logger.info("The next piece is: {}", currentPiece);
+        return currentPiece;
+    }
+    public GamePiece spawnPiece() {
+        var maxPieces = GamePiece.PIECES;
+        var randomPiece = random.nextInt(maxPieces);
+        logger.info("Picking random piece: {}", randomPiece);
+        var piece = GamePiece.createPiece(randomPiece);
+        return piece;
+    }
 
 }
