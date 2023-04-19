@@ -77,6 +77,42 @@ public class Game {
         }
     }
 
+    public void afterPiece() {
+        // Check if we need to clear any lines
+        for (var x = 0; x < cols; x++) {
+            var counter = 0;
+            for (var y = 0; y < rows; y++) {
+                // Horizontal line check
+                if (grid.get(x,y) == 0) break;
+                counter++;
+            }
+            if (counter == rows) {
+                // This line must then be cleared
+            }
+        }
+        for (var y = 0; y < cols; y++) {
+            var counter = 0;
+            for (var x = 0; x < rows; x++) {
+                // Vertical line check
+                if (grid.get(x,y) == 0) break;
+                counter++;
+            }
+            if (counter == rows) {
+                // This line must then be cleared
+            }
+        }
+    }
+
+    public void clearColumn(x) {
+        // Set all values in that column to 0 (i.e empty)
+        // Sort out any scoring that is needed
+    }
+
+    public void clearRow(y) {
+        // Set all values in that row to 0 (i.e empty)
+        // Sort out any scoring that is needed
+    }
+
     /**
      * Get the grid model inside this game representing the game state of the board
      * @return game grid model
