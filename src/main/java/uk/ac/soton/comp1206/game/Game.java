@@ -2,6 +2,8 @@ package uk.ac.soton.comp1206.game;
 
 import java.util.HashSet;
 import java.util.Random;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.ac.soton.comp1206.component.GameBlock;
@@ -12,6 +14,10 @@ import uk.ac.soton.comp1206.component.GameBlockCoordinate;
  * and to handle actions made by the player should take place inside this class.
  */
 public class Game {
+
+    /**
+     * Random object used to generate the next random piece
+     */
     private Random random = new Random();
     private static final Logger logger = LogManager.getLogger(Game.class);
 
@@ -29,7 +35,64 @@ public class Game {
      * The grid model linked to the game
      */
     protected final Grid grid;
+
+    /**
+     * The current piece that is next to be played
+     */
     private GamePiece currentPiece;
+
+    private final IntegerProperty score;
+    private final IntegerProperty level;
+    private final IntegerProperty lives;
+    private final IntegerProperty multiplier;
+
+    public int getScore() {
+        return score.get();
+    }
+
+    public IntegerProperty scoreProperty() {
+        return score;
+    }
+
+    public void setScore(int score) {
+        this.score.set(score);
+    }
+
+    public int getLevel() {
+        return level.get();
+    }
+
+    public IntegerProperty levelProperty() {
+        return level;
+    }
+
+    public void setLevel(int level) {
+        this.level.set(level);
+    }
+
+    public int getLives() {
+        return lives.get();
+    }
+
+    public IntegerProperty livesProperty() {
+        return lives;
+    }
+
+    public void setLives(int lives) {
+        this.lives.set(lives);
+    }
+
+    public int getMultiplier() {
+        return multiplier.get();
+    }
+
+    public IntegerProperty multiplierProperty() {
+        return multiplier;
+    }
+
+    public void setMultiplier(int multiplier) {
+        this.multiplier.set(multiplier);
+    }
 
     /**
      * Create a new game with the specified rows and columns. Creates a corresponding grid model.
@@ -42,6 +105,11 @@ public class Game {
 
         //Create a new grid model to represent the game state
         this.grid = new Grid(cols,rows);
+
+        score = new SimpleIntegerProperty(0);
+        level = new SimpleIntegerProperty(0);
+        lives = new SimpleIntegerProperty(3);
+        multiplier = new SimpleIntegerProperty(1);
     }
 
     /**
@@ -126,6 +194,10 @@ public class Game {
         clearBlocks(blocksToClear);
     }
 
+    /**
+     * Get the blocks that need to be cleared and set their values to zero
+     * @param blocksToClear a set of GameBlockCoordinate objects that need to be cleared
+     */
     public void clearBlocks(HashSet<GameBlockCoordinate> blocksToClear) {
         for (GameBlockCoordinate i : blocksToClear) {
             int clearX = i.getX();
