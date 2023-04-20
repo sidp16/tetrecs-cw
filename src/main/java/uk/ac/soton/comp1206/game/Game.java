@@ -94,6 +94,9 @@ public class Game {
             if (counter == rows) {
                 logger.info("Column {} to be cleared", columnToClear);
                 // Clear vertical line
+                for (var n = 0; n < 4; n++) {
+                    grid.set(columnToClear,n,0);
+                }
             }
         }
         for (var y = 0; y < cols; y++) {
@@ -108,6 +111,9 @@ public class Game {
             if (counter == cols) {
                 logger.info("Row {} to be cleared", rowToClear);
                 // Clear horizontal line
+                for (var n = 0; n < 5; n++) {
+                    grid.set(n,rowToClear,0);
+                }
             }
         }
     }
