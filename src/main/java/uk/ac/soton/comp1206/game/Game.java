@@ -94,7 +94,7 @@ public class Game {
             if (counter == rows) {
                 logger.info("Column {} to be cleared", columnToClear);
                 // Clear vertical line
-                for (var n = 0; n < 4; n++) {
+                for (var n = 0; n < 5; n++) {
                     grid.set(columnToClear,n,0);
                 }
             }
