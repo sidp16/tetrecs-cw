@@ -82,9 +82,11 @@ public class Game {
 
     public void afterPiece() {
         // Check if we need to clear any lines
+        var columnToClear = 0;
+        var rowToClear = 0;
+        HashSet<GameBlockCoordinate> blocksToClear = new HashSet<>();
         for (var x = 0; x < cols; x++) {
             var counter = 0;
-            var columnToClear = 0;
             for (var y = 0; y < rows; y++) {
                 // Vertical line check
                 if (grid.get(x,y) == 0) break;
@@ -93,12 +95,16 @@ public class Game {
             }
             if (counter == rows) {
                 logger.info("Column {} to be cleared", columnToClear);
-                clearColumn(columnToClear);
+                for (var i = 0; i < 5;i++) {
+                    GameBlockCoordinate tempBlock = new GameBlockCoordinate(columnToClear,i);
+                    blocksToClear.add(tempBlock);
+                }
+                logger.info(blocksToClear.toString());
+//                clearColumn(columnToClear);
             }
         }
         for (var y = 0; y < cols; y++) {
             var counter = 0;
-            var rowToClear = 0;
             for (var x = 0; x < rows; x++) {
                 // Horizontal line check
                 if (grid.get(x,y) == 0) break;
@@ -107,11 +113,20 @@ public class Game {
             }
             if (counter == cols) {
                 logger.info("Row {} to be cleared", rowToClear);
-                clearRow(rowToClear);
+                for (var i = 0; i < 5;i++) {
+                    GameBlockCoordinate tempBlock = new GameBlockCoordinate(i,rowToClear);
+                    blocksToClear.add(tempBlock);
+                }
+                logger.info(blocksToClear.toString());
+//                clearRow(rowToClear);
             }
         }
     }
 
+    /**
+     * Clears a specific column, passed in as a parameter
+     * @param columnToClear the x value of the column that is to be cleared
+     */
     public void clearColumn(int columnToClear) {
         // Loop through each block and change value to 0
         for (var n = 0; n < 5; n++) {
@@ -120,6 +135,10 @@ public class Game {
         // Sort out any scoring that is needed
     }
 
+    /**
+     * Clears a specific row, passed in as a parameter
+     * @param rowToClear the y value of the row that is to be cleared
+     */
     public void clearRow(int rowToClear) {
         for (var n = 0; n < 5; n++) {
             grid.set(n,rowToClear,0);
