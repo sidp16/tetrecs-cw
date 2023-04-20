@@ -90,17 +90,18 @@ public class Game {
             for (var y = 0; y < rows; y++) {
                 // Vertical line check
                 if (grid.get(x,y) == 0) break;
-                counter++;
-                columnToClear = x;
+                counter++; // Increments each time a non-zero value is found in a row
+                columnToClear = x; // Logs the column the loop is currently on
             }
             if (counter == rows) {
                 logger.info("Column {} to be cleared", columnToClear);
                 for (var i = 0; i < 5;i++) {
+                    // Creates a GameBlockCoordinate for each block in the column
                     GameBlockCoordinate tempBlock = new GameBlockCoordinate(columnToClear,i);
+                    // Adds to a HashSet to eliminate chance of any duplicates
                     blocksToClear.add(tempBlock);
                 }
                 logger.info(blocksToClear.toString());
-//                clearColumn(columnToClear);
             }
         }
         for (var y = 0; y < cols; y++) {
@@ -108,44 +109,30 @@ public class Game {
             for (var x = 0; x < rows; x++) {
                 // Horizontal line check
                 if (grid.get(x,y) == 0) break;
-                counter++;
-                rowToClear = y;
+                counter++; // Increments each time a non-zero value is found in a row
+                rowToClear = y; // Logs the row the loop is currently on
             }
             if (counter == cols) {
                 logger.info("Row {} to be cleared", rowToClear);
                 for (var i = 0; i < 5;i++) {
+                    // Creates a GameBlockCoordinate for each block in the row
                     GameBlockCoordinate tempBlock = new GameBlockCoordinate(i,rowToClear);
+                    // Adds to a HashSet to eliminate chance of any duplicates
                     blocksToClear.add(tempBlock);
                 }
                 logger.info(blocksToClear.toString());
-//                clearRow(rowToClear);
             }
         }
+        clearBlocks(blocksToClear);
     }
 
-    /**
-     * Clears a specific column, passed in as a parameter
-     * @param columnToClear the x value of the column that is to be cleared
-     */
-    public void clearColumn(int columnToClear) {
-        // Loop through each block and change value to 0
-        for (var n = 0; n < 5; n++) {
-            grid.set(columnToClear, n, 0);
+    public void clearBlocks(HashSet<GameBlockCoordinate> blocksToClear) {
+        for (GameBlockCoordinate i : blocksToClear) {
+            int clearX = i.getX();
+            int clearY = i.getY();
+            grid.set(clearX,clearY,0);
         }
-        // Sort out any scoring that is needed
     }
-
-    /**
-     * Clears a specific row, passed in as a parameter
-     * @param rowToClear the y value of the row that is to be cleared
-     */
-    public void clearRow(int rowToClear) {
-        for (var n = 0; n < 5; n++) {
-            grid.set(n,rowToClear,0);
-        }
-        // Sort out any scoring that is needed
-    }
-
     /**
      * Get the grid model inside this game representing the game state of the board
      * @return game grid model
