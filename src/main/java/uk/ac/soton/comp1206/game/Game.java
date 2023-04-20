@@ -1,9 +1,11 @@
 package uk.ac.soton.comp1206.game;
 
+import java.util.HashSet;
 import java.util.Random;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.ac.soton.comp1206.component.GameBlock;
+import uk.ac.soton.comp1206.component.GameBlockCoordinate;
 
 /**
  * The Game class handles the main logic, state and properties of the TetrECS game. Methods to manipulate the game state
@@ -72,6 +74,7 @@ public class Game {
             // Can play the piece
             grid.playPiece(currentPiece, x, y);
             nextPiece();
+            afterPiece();
         } else {
             // Cannot play the piece
         }
@@ -81,37 +84,43 @@ public class Game {
         // Check if we need to clear any lines
         for (var x = 0; x < cols; x++) {
             var counter = 0;
+            var columnToClear = 0;
             for (var y = 0; y < rows; y++) {
-                // Horizontal line check
+                // Vertical line check
                 if (grid.get(x,y) == 0) break;
                 counter++;
+                columnToClear = x;
             }
             if (counter == rows) {
-                // This line must then be cleared
+                logger.info("Column {} to be cleared", columnToClear);
+                // Clear vertical line
             }
         }
         for (var y = 0; y < cols; y++) {
             var counter = 0;
+            var rowToClear = 0;
             for (var x = 0; x < rows; x++) {
-                // Vertical line check
+                // Horizontal line check
                 if (grid.get(x,y) == 0) break;
                 counter++;
+                rowToClear = y;
             }
-            if (counter == rows) {
-                // This line must then be cleared
+            if (counter == cols) {
+                logger.info("Row {} to be cleared", rowToClear);
+                // Clear horizontal line
             }
         }
     }
 
-    public void clearColumn(x) {
+//    public void clearColumn(x) {
         // Set all values in that column to 0 (i.e empty)
         // Sort out any scoring that is needed
-    }
+//    }
 
-    public void clearRow(y) {
+//    public void clearRow(y) {
         // Set all values in that row to 0 (i.e empty)
         // Sort out any scoring that is needed
-    }
+//    }
 
     /**
      * Get the grid model inside this game representing the game state of the board
