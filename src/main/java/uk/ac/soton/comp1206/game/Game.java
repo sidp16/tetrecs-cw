@@ -93,10 +93,7 @@ public class Game {
             }
             if (counter == rows) {
                 logger.info("Column {} to be cleared", columnToClear);
-                // Clear vertical line
-                for (var n = 0; n < 5; n++) {
-                    grid.set(columnToClear,n,0);
-                }
+                clearColumn(columnToClear);
             }
         }
         for (var y = 0; y < cols; y++) {
@@ -110,23 +107,25 @@ public class Game {
             }
             if (counter == cols) {
                 logger.info("Row {} to be cleared", rowToClear);
-                // Clear horizontal line
-                for (var n = 0; n < 5; n++) {
-                    grid.set(n,rowToClear,0);
-                }
+                clearRow(rowToClear);
             }
         }
     }
 
-//    public void clearColumn(x) {
-        // Set all values in that column to 0 (i.e empty)
+    public void clearColumn(int columnToClear) {
+        // Loop through each block and change value to 0
+        for (var n = 0; n < 5; n++) {
+            grid.set(columnToClear, n, 0);
+        }
         // Sort out any scoring that is needed
-//    }
+    }
 
-//    public void clearRow(y) {
-        // Set all values in that row to 0 (i.e empty)
+    public void clearRow(int rowToClear) {
+        for (var n = 0; n < 5; n++) {
+            grid.set(n,rowToClear,0);
+        }
         // Sort out any scoring that is needed
-//    }
+    }
 
     /**
      * Get the grid model inside this game representing the game state of the board
