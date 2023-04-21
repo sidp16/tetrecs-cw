@@ -81,6 +81,7 @@ public class ChallengeScene extends BaseScene {
     public void buildText() {
         scoreLabel = new Text(); levelLabel = new Text(); multiplierLabel = new Text(); livesLabel =
             new Text();
+
         scoreLabel.setFont(Font.font("Courier New", FontWeight.BOLD,20));
         levelLabel.setFont(Font.font("Courier New", FontWeight.BOLD,20));
         multiplierLabel.setFont(Font.font("Courier New", FontWeight.BOLD,20));
@@ -91,6 +92,7 @@ public class ChallengeScene extends BaseScene {
         multiplierLabel.setFill(Color.WHITE);
         livesLabel.setFill(Color.WHITE);
 
+        // Might need to use listeners here instead
         scoreLabel.textProperty().bind(Bindings.concat("Score: ", game.scoreProperty().asString()));
         levelLabel.textProperty().bind(Bindings.concat("Level: ", game.levelProperty().asString()));
         multiplierLabel.textProperty().bind(Bindings.concat("Multiplier: ", game.multiplierProperty().asString()));

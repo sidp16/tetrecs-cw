@@ -195,10 +195,15 @@ public class Game {
         score(linesCleared, blocksToClear.size());
         checkMultiplier(linesCleared);
         clearBlocks(blocksToClear);
+        changeLevel();
     }
 
-    public void checkLevel() {
-
+    /**
+     * Checks divisibility by 1000, adjusts level depending on which 1000 is reached
+     */
+    public void changeLevel() {
+        int value = score.get() / 1000;
+        level.set(value);
     }
 
 
