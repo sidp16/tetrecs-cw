@@ -145,6 +145,7 @@ public class Game {
             afterPiece();
         } else {
             // Cannot play the piece
+            // TODO: Play sound to indicate error?
         }
     }
 
@@ -152,6 +153,8 @@ public class Game {
         // Check if we need to clear any lines
         var columnToClear = 0;
         var rowToClear = 0;
+        var linesCleared = 0;
+        // Using a HashSet to eliminate chance of any duplicates
         HashSet<GameBlockCoordinate> blocksToClear = new HashSet<>();
         for (var x = 0; x < cols; x++) {
             var counter = 0;
@@ -163,10 +166,9 @@ public class Game {
             }
             if (counter == rows) {
                 logger.info("Column {} to be cleared", columnToClear);
+                linesCleared++;
                 for (var i = 0; i < 5;i++) {
-                    // Creates a GameBlockCoordinate for each block in the column
                     GameBlockCoordinate tempBlock = new GameBlockCoordinate(columnToClear,i);
-                    // Adds to a HashSet to eliminate chance of any duplicates
                     blocksToClear.add(tempBlock);
                 }
                 logger.info(blocksToClear.toString());
@@ -182,18 +184,49 @@ public class Game {
             }
             if (counter == cols) {
                 logger.info("Row {} to be cleared", rowToClear);
+                linesCleared++;
                 for (var i = 0; i < 5;i++) {
-                    // Creates a GameBlockCoordinate for each block in the row
                     GameBlockCoordinate tempBlock = new GameBlockCoordinate(i,rowToClear);
-                    // Adds to a HashSet to eliminate chance of any duplicates
                     blocksToClear.add(tempBlock);
                 }
                 logger.info(blocksToClear.toString());
             }
         }
+        score(linesCleared, blocksToClear.size());
+        checkMultiplier(linesCleared);
         clearBlocks(blocksToClear);
     }
 
+    public void checkLevel() {
+
+    }
+
+
+    /**
+     * Increments multiplier by 1 if > 0, resets if no lines cleared
+     * @param linesCleared the number of lines cleared in the turn
+     */
+    public void checkMultiplier(int linesCleared) {
+        if (linesCleared > 0) {
+            increaseMultiplier();
+        } else {
+            resetMultiplier();
+        }
+    }
+
+    /**
+     * Increments the value of the multiplier
+     */
+    public void increaseMultiplier() {
+        multiplier.set(multiplier.add(1).get());
+    }
+
+    /**
+     * Resets multiplier to 1
+     */
+    public void resetMultiplier() {
+        multiplier.set(1);
+    }
     /**
      * Get the blocks that need to be cleared and set their values to zero
      * @param blocksToClear a set of GameBlockCoordinate objects that need to be cleared
@@ -205,6 +238,18 @@ public class Game {
             grid.set(clearX,clearY,0);
         }
     }
+
+    /**
+     * Adds the calculated score based on the lines and blocks cleared
+     * @param numOfLines number of lines cleared
+     * @param numOfBlocks number of blocks cleared
+     */
+    public void score(int numOfLines, int numOfBlocks) {
+        var addScore = numOfLines * numOfBlocks * 10 * multiplier.get();
+        logger.info("Adding {} points!", addScore);
+        score.set(score.add(addScore).get());
+    }
+
     /**
      * Get the grid model inside this game representing the game state of the board
      * @return game grid model
