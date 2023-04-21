@@ -8,6 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.ac.soton.comp1206.component.GameBlock;
 import uk.ac.soton.comp1206.component.GameBlockCoordinate;
+import uk.ac.soton.comp1206.event.NextPieceListener;
 
 /**
  * The Game class handles the main logic, state and properties of the TetrECS game. Methods to manipulate the game state
@@ -41,10 +42,14 @@ public class Game {
      */
     private GamePiece currentPiece;
 
+    private GamePiece followingPiece;
+
     private final IntegerProperty score;
     private final IntegerProperty level;
     private final IntegerProperty lives;
     private final IntegerProperty multiplier;
+
+    private NextPieceListener nextPieceListener;
 
     public int getScore() {
         return score.get();
@@ -90,6 +95,23 @@ public class Game {
         return multiplier;
     }
 
+    /**
+     * @param listener any class implementing NextPieceListener is passed
+     */
+    public void registerNextPieceListener(NextPieceListener listener) {
+        this.nextPieceListener = listener;
+    }
+
+    /**
+     * Calls the nextPiece command specified by the interface
+     * @param nextPiece the next piece to be played
+     */
+    private void notifyNextPieceListener(GamePiece nextPiece, GamePiece followingPiece) {
+        if (nextPieceListener != null) {
+            nextPieceListener.nextPiece(nextPiece, followingPiece);
+        }
+    }
+
     public void setMultiplier(int multiplier) {
         this.multiplier.set(multiplier);
     }
@@ -125,8 +147,10 @@ public class Game {
      */
     public void initialiseGame() {
         logger.info("Initialising game");
+        followingPiece = spawnPiece();
         nextPiece();
     }
+
 
     /**
      * Handle what should happen when a particular block is clicked
@@ -255,6 +279,9 @@ public class Game {
         score.set(score.add(addScore).get());
     }
 
+    public void rotateCurrentPiece() {
+        currentPiece.rotate();
+    }
     /**
      * Get the grid model inside this game representing the game state of the board
      * @return game grid model
@@ -280,8 +307,10 @@ public class Game {
     }
 
     public GamePiece nextPiece() {
-        currentPiece = spawnPiece();
+        currentPiece = followingPiece;
+        followingPiece = spawnPiece();
         logger.info("The next piece is: {}", currentPiece);
+        notifyNextPieceListener(currentPiece, followingPiece);
         return currentPiece;
     }
     public GamePiece spawnPiece() {
@@ -292,4 +321,10 @@ public class Game {
         return piece;
     }
 
+    public void swapCurrentPiece() {
+        GamePiece tempPiece = currentPiece; // Store current piece in a temporary variable
+        currentPiece = followingPiece; // Set current piece to the following piece
+        followingPiece = tempPiece; // Set following piece to the temporary variable
+    }
 }
+

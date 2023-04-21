@@ -13,14 +13,17 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.ac.soton.comp1206.component.GameBlock;
 import uk.ac.soton.comp1206.component.GameBoard;
+import uk.ac.soton.comp1206.component.PieceBoard;
+import uk.ac.soton.comp1206.event.NextPieceListener;
 import uk.ac.soton.comp1206.game.Game;
+import uk.ac.soton.comp1206.game.GamePiece;
 import uk.ac.soton.comp1206.ui.GamePane;
 import uk.ac.soton.comp1206.ui.GameWindow;
 
 /**
  * The Single Player challenge scene. Holds the UI for the single player challenge mode in the game.
  */
-public class ChallengeScene extends BaseScene {
+public class ChallengeScene extends BaseScene implements NextPieceListener {
 
     private static final Logger logger = LogManager.getLogger(MenuScene.class);
     protected Game game;
@@ -29,6 +32,10 @@ public class ChallengeScene extends BaseScene {
     private Text levelLabel;
     private Text multiplierLabel;
     private Text livesLabel;
+
+    private PieceBoard nextPieceBoard;
+    private PieceBoard tertiaryBoard;
+
 
     /**
      * Create a new Single Player challenge scene
@@ -48,9 +55,8 @@ public class ChallengeScene extends BaseScene {
 
         setupGame();
 
+
         root = new GamePane(gameWindow.getWidth(),gameWindow.getHeight());
-
-
 
         var challengePane = new StackPane();
         challengePane.setMaxWidth(gameWindow.getWidth());
@@ -58,21 +64,44 @@ public class ChallengeScene extends BaseScene {
         challengePane.getStyleClass().add("menu-background");
         root.getChildren().add(challengePane);
 
+        // Vbox to hold the main board
         var mainPane = new BorderPane();
         challengePane.getChildren().add(mainPane);
 
+        // VBox to hold text objects
         var leftPane = new VBox();
         leftPane.setAlignment(Pos.CENTER_LEFT);
         leftPane.setSpacing(10);
 
-        var board = new GameBoard(game.getGrid(),gameWindow.getWidth()/2,gameWindow.getWidth()/2);
+        // Vbox to hold the board displaying the next piece, and following piece
+        var rightPane = new VBox();
+        rightPane.setAlignment(Pos.CENTER_RIGHT);
+        rightPane.setSpacing(10);
+
+        // The main tetris board
+        var board = new GameBoard(game.getGrid(),gameWindow.getWidth()/2,
+            gameWindow.getWidth()/2);
         mainPane.setCenter(board);
 
         buildText();
 
+        // The secondary board displaying the next piece
+        nextPieceBoard = new PieceBoard(3,3,
+            gameWindow.getWidth()/5, gameWindow.getWidth()/5);
+
+        // Tertiary board displaying the piece after the next one
+        tertiaryBoard = new PieceBoard(3,3,
+            gameWindow.getWidth()/7, gameWindow.getWidth()/7);
+
+        game.registerNextPieceListener(this);
+
+        // Adding spacing and each side's children to the main pane
+        rightPane.getChildren().addAll(nextPieceBoard, tertiaryBoard);
         leftPane.getChildren().addAll(levelLabel, livesLabel, scoreLabel, multiplierLabel);
-        leftPane.setPadding(new Insets(0,20,0,20));
+        rightPane.setPadding(new Insets(0,20,0,0));
+        leftPane.setPadding(new Insets(0,0,0,20));
         mainPane.setLeft(leftPane);
+        mainPane.setRight(rightPane);
 
         //Handle block on gameboard grid being clicked
         board.setOnBlockClick(this::blockClicked);
@@ -126,4 +155,8 @@ public class ChallengeScene extends BaseScene {
         game.start();
     }
 
+    @Override
+    public void nextPiece(GamePiece nextPiece, GamePiece followingPiece) {
+        nextPieceBoard.displayPiece(nextPiece, followingPiece);
+    }
 }

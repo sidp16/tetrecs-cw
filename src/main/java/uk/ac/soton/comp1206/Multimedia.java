@@ -6,6 +6,11 @@ public class Multimedia {
   private MediaPlayer audioPlayer;
   private MediaPlayer musicPlayer;
 
-  public Multimedia() {
+  public void playBackgroundMusic() {
+
+  }
+
+  public void playAudioFile() {
+
   }
 }
