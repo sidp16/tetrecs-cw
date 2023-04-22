@@ -1,6 +1,5 @@
 package uk.ac.soton.comp1206.scene;
 
-import java.nio.file.Paths;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -64,8 +63,8 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
 
         setupGame();
 
-        musicPlayer.playBackgroundMusic(Paths.get("src/main/resources/music/game.wav").toUri()
-            .toString());
+//        musicPlayer.playBackgroundMusic(Paths.get("src/main/resources/music/game.wav").toUri()
+//            .toString());
 
 
         root = new GamePane(gameWindow.getWidth(), gameWindow.getHeight());
@@ -107,6 +106,7 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
 
         game.registerNextPieceListener(this);
         nextPieceBoard.setOnRightClicked(this);
+        tertiaryBoard.setOnRightClicked(this);
 
         // Adding spacing and each side's children to the main pane
         rightPane.getChildren().addAll(nextPieceBoard, tertiaryBoard);
@@ -120,8 +120,15 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
         board.setOnBlockClick(this::blockClicked);
         board.setOnRightClicked(this::onRightClicked);
         nextPieceBoard.setOnBlockClick(this::rotatePiece);
+        tertiaryBoard.setOnBlockClick(this::swapPiece);
     }
 
+    private void swapPiece(GameBlock gameBlock) {
+        game.swapCurrentPiece();
+        nextPieceBoard.clear();
+        tertiaryBoard.clear();
+        nextPiece(game.getCurrentPiece(), game.getFollowingPiece());
+    }
     private void rotatePiece(GameBlock gameBlock) {
         game.rotateCurrentPiece();
         nextPieceBoard.clear();
@@ -202,5 +209,4 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
         tertiaryBoard.clear();
         nextPiece(game.getCurrentPiece(), game.getFollowingPiece());
     }
-
 }
