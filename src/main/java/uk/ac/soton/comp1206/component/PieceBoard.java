@@ -2,7 +2,7 @@ package uk.ac.soton.comp1206.component;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import uk.ac.soton.comp1206.game.Game;
+import uk.ac.soton.comp1206.event.RightClickedListener;
 import uk.ac.soton.comp1206.game.GamePiece;
 import uk.ac.soton.comp1206.game.Grid;
 
@@ -22,4 +22,5 @@ public class PieceBoard extends GameBoard {
     logger.info("Piece to display: {}", piece.toString());
     logger.info("Secondary piece to display: {}", followingPiece.toString());
     }
-  }
+
+}

@@ -1,11 +1,15 @@
 package uk.ac.soton.comp1206.component;
 
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.ac.soton.comp1206.event.BlockClickedListener;
+import uk.ac.soton.comp1206.event.RightClickedListener;
+import uk.ac.soton.comp1206.game.GamePiece;
 import uk.ac.soton.comp1206.game.Grid;
+import uk.ac.soton.comp1206.ui.GamePane;
 
 /**
  * A GameBoard is a visual component to represent the visual GameBoard.
@@ -56,6 +60,7 @@ public class GameBoard extends GridPane {
      */
     private BlockClickedListener blockClickedListener;
 
+    private RightClickedListener rightClickedListener;
 
     /**
      * Create a new GameBoard, based off a given grid, with a visual width and height.
@@ -146,7 +151,13 @@ public class GameBoard extends GridPane {
         block.bind(grid.getGridProperty(x,y));
 
         //Add a mouse click handler to the block to trigger GameBoard blockClicked method
-        block.setOnMouseClicked((e) -> blockClicked(e, block));
+        block.setOnMouseClicked((e) -> {
+            if (e.getButton() == MouseButton.PRIMARY) {
+                blockClicked(e, block);
+            } else {
+                boardClicked(e);
+            }
+        });
 
         return block;
     }
@@ -159,17 +170,24 @@ public class GameBoard extends GridPane {
         this.blockClickedListener = listener;
     }
 
+    public void setOnRightClicked(RightClickedListener listener) {
+        this.rightClickedListener = listener;
+    }
+
     /**
      * Triggered when a block is clicked. Call the attached listener.
      * @param event mouse event
      * @param block block clicked on
      */
     private void blockClicked(MouseEvent event, GameBlock block) {
-        logger.info("Block clicked: {}", block);
-
         if(blockClickedListener != null) {
             blockClickedListener.blockClicked(block);
         }
     }
 
+    private void boardClicked(MouseEvent event) {
+        if (rightClickedListener != null) {
+            rightClickedListener.onRightClicked();
+        }
+    }
 }

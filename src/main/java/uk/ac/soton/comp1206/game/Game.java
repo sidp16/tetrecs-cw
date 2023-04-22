@@ -1,11 +1,13 @@
 package uk.ac.soton.comp1206.game;
 
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Random;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import uk.ac.soton.comp1206.Multimedia;
 import uk.ac.soton.comp1206.component.GameBlock;
 import uk.ac.soton.comp1206.component.GameBlockCoordinate;
 import uk.ac.soton.comp1206.event.NextPieceListener;
@@ -50,6 +52,9 @@ public class Game {
     private final IntegerProperty multiplier;
 
     private NextPieceListener nextPieceListener;
+
+    private Multimedia audioPlayer;
+    private Multimedia musicPlayer;
 
     public int getScore() {
         return score.get();
@@ -132,6 +137,9 @@ public class Game {
         level = new SimpleIntegerProperty(0);
         lives = new SimpleIntegerProperty(3);
         multiplier = new SimpleIntegerProperty(1);
+
+        audioPlayer = new Multimedia();
+        musicPlayer = new Multimedia();
     }
 
     /**
@@ -149,6 +157,8 @@ public class Game {
         logger.info("Initialising game");
         followingPiece = spawnPiece();
         nextPiece();
+        musicPlayer.playBackgroundMusic(Paths.get("src/main/resources/music/game.wav").toUri()
+            .toString());
     }
 
 
@@ -165,6 +175,8 @@ public class Game {
         if (grid.canPlayPiece(currentPiece, x,y)) {
             // Can play the piece
             grid.playPiece(currentPiece, x, y);
+            audioPlayer.playAudioFile(Paths.get("src/main/resources/sounds/place.wav").toUri()
+                .toString());
             nextPiece();
             afterPiece();
         } else {
@@ -281,6 +293,7 @@ public class Game {
 
     public void rotateCurrentPiece() {
         currentPiece.rotate();
+        logger.info("{} has been rotated", currentPiece.toString());
     }
     /**
      * Get the grid model inside this game representing the game state of the board
@@ -307,7 +320,7 @@ public class Game {
     }
 
     public GamePiece nextPiece() {
-        currentPiece = followingPiece;
+        currentPiece = followingPiece; // Once the
         followingPiece = spawnPiece();
         logger.info("The next piece is: {}", currentPiece);
         notifyNextPieceListener(currentPiece, followingPiece);
