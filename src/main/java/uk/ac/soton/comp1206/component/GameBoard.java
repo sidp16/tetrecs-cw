@@ -61,6 +61,7 @@ public class GameBoard extends GridPane {
     private BlockClickedListener blockClickedListener;
 
     private RightClickedListener rightClickedListener;
+    private GameBlock hover;
 
     /**
      * Create a new GameBoard, based off a given grid, with a visual width and height.
@@ -163,7 +164,17 @@ public class GameBoard extends GridPane {
             }
         });
 
+        block.setOnMouseEntered((e) -> hover(block));
+        block.setOnMouseExited((e) -> block.hover(false));
         return block;
+    }
+
+    public void hover(GameBlock gameBlock) {
+        if (hover != null) {
+            hover.hover(false);
+        }
+        hover = gameBlock;
+        gameBlock.hover(true);
     }
 
     /**

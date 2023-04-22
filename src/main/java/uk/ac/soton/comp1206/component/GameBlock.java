@@ -62,6 +62,8 @@ public class GameBlock extends Canvas {
      * The value of this block (0 = empty, otherwise specifies the colour to render as)
      */
     private final IntegerProperty value = new SimpleIntegerProperty(0);
+    private boolean center = false;
+    private boolean hover = false;
 
     /**
      * Create a new single Game Block
@@ -110,6 +112,20 @@ public class GameBlock extends Canvas {
             //If the block is not empty, paint with the colour represented by the value
             paintColor(COLOURS[value.get()]);
         }
+
+        if (this.center) {
+            var gc = getGraphicsContext2D();
+
+            gc.setFill(Color.rgb(255,255,255,0.5));
+            gc.fillOval(width/4, height/4, width/2, height/2);
+        }
+
+        if (this.hover) {
+            var gc = getGraphicsContext2D();
+
+            gc.setFill(Color.rgb(204,204,204,0.4));
+            gc.fillRect(0,0,width,height);
+        }
     }
 
     /**
@@ -144,9 +160,27 @@ public class GameBlock extends Canvas {
         gc.setFill(colour);
         gc.fillRect(0,0, width, height);
 
+        // To create 3D effect
+        gc.setFill(Color.rgb(59, 59, 59, 0.2));
+        gc.fillPolygon(new double[]{0, 0, width}, new double[]{0, height, height}, 3);
+        gc.setFill(Color.rgb(161, 161, 161, 0.3));
+        gc.fillRect(0, 0, 3, height);
+        gc.setFill(Color.rgb(255, 255, 255, 0.3));
+        gc.fillRect(0, 0, width, 3);
+
         //Border
-        gc.setStroke(Color.BLACK);
+        gc.setStroke(Color.rgb(0,0,0,0.6));
         gc.strokeRect(0,0,width,height);
+    }
+
+    public void center() {
+        this.center = true;
+        paint();
+    }
+
+    public void hover(boolean hover) {
+        this.hover = hover;
+        paint();
     }
 
     /**
