@@ -21,7 +21,7 @@ public class Game {
     /**
      * Random object used to generate the next random piece
      */
-    private Random random = new Random();
+    private final Random random = new Random();
     private static final Logger logger = LogManager.getLogger(Game.class);
 
     /**
@@ -53,8 +53,6 @@ public class Game {
 
     private NextPieceListener nextPieceListener;
 
-    private Multimedia audioPlayer;
-    private Multimedia musicPlayer;
 
     public int getScore() {
         return score.get();
@@ -107,6 +105,14 @@ public class Game {
         this.nextPieceListener = listener;
     }
 
+    public GamePiece getCurrentPiece() {
+        return currentPiece;
+    }
+
+    public GamePiece getFollowingPiece() {
+        return followingPiece;
+    }
+
     /**
      * Calls the nextPiece command specified by the interface
      * @param nextPiece the next piece to be played
@@ -138,8 +144,6 @@ public class Game {
         lives = new SimpleIntegerProperty(3);
         multiplier = new SimpleIntegerProperty(1);
 
-        audioPlayer = new Multimedia();
-        musicPlayer = new Multimedia();
     }
 
     /**
@@ -157,8 +161,6 @@ public class Game {
         logger.info("Initialising game");
         followingPiece = spawnPiece();
         nextPiece();
-        musicPlayer.playBackgroundMusic(Paths.get("src/main/resources/music/game.wav").toUri()
-            .toString());
     }
 
 
@@ -175,8 +177,6 @@ public class Game {
         if (grid.canPlayPiece(currentPiece, x,y)) {
             // Can play the piece
             grid.playPiece(currentPiece, x, y);
-            audioPlayer.playAudioFile(Paths.get("src/main/resources/sounds/place.wav").toUri()
-                .toString());
             nextPiece();
             afterPiece();
         } else {

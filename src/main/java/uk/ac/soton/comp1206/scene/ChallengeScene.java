@@ -1,5 +1,6 @@
 package uk.ac.soton.comp1206.scene;
 
+import java.nio.file.Paths;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -10,6 +11,7 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import uk.ac.soton.comp1206.Multimedia;
 import uk.ac.soton.comp1206.component.GameBlock;
 import uk.ac.soton.comp1206.component.GameBoard;
 import uk.ac.soton.comp1206.component.PieceBoard;
@@ -36,6 +38,9 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
     private PieceBoard nextPieceBoard;
     private PieceBoard tertiaryBoard;
 
+    private Multimedia musicPlayer;
+    private Multimedia audioPlayer;
+
 
     /**
      * Create a new Single Player challenge scene
@@ -54,7 +59,14 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
     public void build() {
         logger.info("Building " + this.getClass().getName());
 
+        musicPlayer = new Multimedia();
+        audioPlayer = new Multimedia();
+
         setupGame();
+
+        musicPlayer.playBackgroundMusic(Paths.get("src/main/resources/music/game.wav").toUri()
+            .toString());
+
 
         root = new GamePane(gameWindow.getWidth(), gameWindow.getHeight());
 
@@ -112,6 +124,9 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
 
     private void rotatePiece(GameBlock gameBlock) {
         game.rotateCurrentPiece();
+        nextPieceBoard.clear();
+        tertiaryBoard.clear();
+        nextPiece(game.getCurrentPiece(), game.getFollowingPiece());
     }
 
     public void buildText() {
@@ -146,6 +161,9 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
      */
     private void blockClicked(GameBlock gameBlock) {
         game.blockClicked(gameBlock);
+        nextPieceBoard.clear();
+        tertiaryBoard.clear();
+        nextPiece(game.getCurrentPiece(), game.getFollowingPiece());
     }
 
     /**
@@ -173,12 +191,16 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
      */
     @Override
     public void nextPiece(GamePiece nextPiece, GamePiece followingPiece) {
-
+        nextPieceBoard.displayPiece(nextPiece);
+        tertiaryBoard.displayPiece(followingPiece);
     }
 
     @Override
     public void onRightClicked() {
         game.rotateCurrentPiece();
+        nextPieceBoard.clear();
+        tertiaryBoard.clear();
+        nextPiece(game.getCurrentPiece(), game.getFollowingPiece());
     }
 
 }

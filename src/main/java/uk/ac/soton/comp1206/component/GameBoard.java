@@ -109,6 +109,10 @@ public class GameBoard extends GridPane {
         return blocks[x][y];
     }
 
+    public Grid getGrid() {
+        return grid;
+    }
+
     /**
      * Build the GameBoard by creating a block at every x and y column and row
      */
