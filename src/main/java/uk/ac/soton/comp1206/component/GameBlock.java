@@ -1,5 +1,6 @@
 package uk.ac.soton.comp1206.component;
 
+import javafx.animation.AnimationTimer;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ObservableValue;
@@ -172,6 +173,26 @@ public class GameBlock extends Canvas {
         gc.setStroke(Color.rgb(0,0,0,0.6));
         gc.strokeRect(0,0,width,height);
     }
+
+    public void fadeOut() {
+        AnimationTimer timer = new AnimationTimer() {
+            double opacity = 1;
+            @Override
+            public void handle(long now) {
+                GameBlock.this.paintEmpty();
+                opacity -= 0.03;
+                if (opacity <= 0) {
+                    stop();
+                    return;
+                }
+                var gc = getGraphicsContext2D();
+                gc.setFill(Color.rgb(0,1,0,opacity));
+                gc.fillRect(0,0 ,GameBlock.this.width, GameBlock.this.height);
+            }
+        };
+        timer.start();
+    }
+
 
     public void center() {
         this.center = true;

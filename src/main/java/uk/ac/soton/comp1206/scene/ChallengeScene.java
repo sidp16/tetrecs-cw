@@ -1,5 +1,7 @@
 package uk.ac.soton.comp1206.scene;
 
+import java.util.HashSet;
+import java.util.Set;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -10,8 +12,8 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import uk.ac.soton.comp1206.Multimedia;
 import uk.ac.soton.comp1206.component.GameBlock;
+import uk.ac.soton.comp1206.component.GameBlockCoordinate;
 import uk.ac.soton.comp1206.component.GameBoard;
 import uk.ac.soton.comp1206.component.PieceBoard;
 import uk.ac.soton.comp1206.event.NextPieceListener;
@@ -34,12 +36,9 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
     private Text multiplierLabel;
     private Text livesLabel;
 
-    private PieceBoard nextPieceBoard;
-    private PieceBoard tertiaryBoard;
-
-    private Multimedia musicPlayer;
-    private Multimedia audioPlayer;
-
+    protected GameBoard board;
+    protected PieceBoard nextPieceBoard, tertiaryBoard;
+    private Text titleLabel;
 
     /**
      * Create a new Single Player challenge scene
@@ -58,14 +57,7 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
     public void build() {
         logger.info("Building " + this.getClass().getName());
 
-        musicPlayer = new Multimedia();
-        audioPlayer = new Multimedia();
-
         setupGame();
-
-//        musicPlayer.playBackgroundMusic(Paths.get("src/main/resources/music/game.wav").toUri()
-//            .toString());
-
 
         root = new GamePane(gameWindow.getWidth(), gameWindow.getHeight());
 
@@ -75,53 +67,86 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
         challengePane.getStyleClass().add("menu-background");
         root.getChildren().add(challengePane);
 
+        game.registerNextPieceListener(this);
+        game.setOnLineCleared(this::fadeLine);
+
         // Vbox to hold the main board
         var mainPane = new BorderPane();
         challengePane.getChildren().add(mainPane);
 
         // VBox to hold text objects
         var leftPane = new VBox();
-        leftPane.setAlignment(Pos.CENTER_LEFT);
-        leftPane.setSpacing(10);
+        leftPane.setAlignment(Pos.CENTER);
+        leftPane.setPadding(new Insets(0,0,0,15));
 
         // Vbox to hold the board displaying the next piece, and following piece
         var rightPane = new VBox();
-        rightPane.setAlignment(Pos.CENTER_RIGHT);
-        rightPane.setSpacing(10);
+        rightPane.setAlignment(Pos.CENTER);
+        rightPane.setPadding(new Insets(0,15,0,0));
+
+        // Top row
+        var topBar = new HBox(125);
+        topBar.setAlignment(Pos.CENTER);
+        BorderPane.setMargin(topBar, new Insets(10,0,0,0));
+        mainPane.setTop(topBar);
 
         // The main tetris board
-        var board = new GameBoard(game.getGrid(), gameWindow.getWidth() / 2,
+        board = new GameBoard(game.getGrid(), gameWindow.getWidth() / 2,
             gameWindow.getWidth() / 2);
         mainPane.setCenter(board);
-
-        buildText();
+        board.setOnBlockClick(this::blockClicked);
+        board.setOnRightClicked(this::onRightClicked);
 
         // The secondary board displaying the next piece
         nextPieceBoard = new PieceBoard(3, 3,
             gameWindow.getWidth() / 5, gameWindow.getWidth() / 5);
+        nextPieceBoard.setOnRightClicked(this);
+        nextPieceBoard.blocks[1][1].center();
+        nextPieceBoard.setOnBlockClick(this::rotatePiece);
+        nextPieceBoard.setPadding(new Insets(5,0,0,0));
 
         // Tertiary board displaying the piece after the next one
         tertiaryBoard = new PieceBoard(3, 3,
             gameWindow.getWidth() / 7, gameWindow.getWidth() / 7);
-
-        game.registerNextPieceListener(this);
-        nextPieceBoard.setOnRightClicked(this);
         tertiaryBoard.setOnRightClicked(this);
+        tertiaryBoard.setOnBlockClick(this::swapPiece);
+        tertiaryBoard.setPadding(new Insets(15,0,0,0));
+
+        buildText();
+
+        // Score info
+        var scoreInfo = new VBox();
+        scoreInfo.setAlignment(Pos.CENTER);
+        scoreInfo.getChildren().add(scoreLabel);
+
+        // Lives info
+        var livesInfo = new VBox();
+        livesInfo.setAlignment(Pos.CENTER);
+        livesInfo.getChildren().add(livesLabel);
+
+        // Title
+        var title = new VBox();
+        title.setAlignment(Pos.CENTER);
+        title.getChildren().add(titleLabel);
+
+        topBar.getChildren().addAll(scoreInfo,title, livesInfo);
+
 
         // Adding spacing and each side's children to the main pane
         rightPane.getChildren().addAll(nextPieceBoard, tertiaryBoard);
-        leftPane.getChildren().addAll(levelLabel, livesLabel, scoreLabel, multiplierLabel);
-        rightPane.setPadding(new Insets(0, 20, 0, 0));
-        leftPane.setPadding(new Insets(0, 0, 0, 20));
+        leftPane.getChildren().addAll(levelLabel, multiplierLabel);
         mainPane.setLeft(leftPane);
         mainPane.setRight(rightPane);
 
-        //Handle block on gameboard grid being clicked
-        board.setOnBlockClick(this::blockClicked);
-        board.setOnRightClicked(this::onRightClicked);
-        nextPieceBoard.setOnBlockClick(this::rotatePiece);
-        tertiaryBoard.setOnBlockClick(this::swapPiece);
+
     }
+
+
+    private void fadeLine(Set<GameBlockCoordinate> allBlockCoordinates) {
+        board.fadeOut((HashSet<GameBlockCoordinate>) allBlockCoordinates);
+        logger.info("Line clear animation done");
+    }
+
 
     private void swapPiece(GameBlock gameBlock) {
         game.swapCurrentPiece();
@@ -140,18 +165,14 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
         scoreLabel = new Text();
         levelLabel = new Text();
         multiplierLabel = new Text();
-        livesLabel =
-            new Text();
+        livesLabel = new Text();
+        titleLabel = new Text("TETRECS");
 
-        scoreLabel.setFont(Font.font("Courier New", FontWeight.BOLD, 20));
-        levelLabel.setFont(Font.font("Courier New", FontWeight.BOLD, 20));
-        multiplierLabel.setFont(Font.font("Courier New", FontWeight.BOLD, 20));
-        livesLabel.setFont(Font.font("Courier New", FontWeight.BOLD, 20));
-
-        scoreLabel.setFill(Color.WHITE);
-        levelLabel.setFill(Color.WHITE);
-        multiplierLabel.setFill(Color.WHITE);
-        livesLabel.setFill(Color.WHITE);
+        scoreLabel.getStyleClass().add("score");
+        levelLabel.getStyleClass().add("level");
+        multiplierLabel.getStyleClass().add("multiplier");
+        livesLabel.getStyleClass().add("lives");
+        titleLabel.getStyleClass().add("title");
 
         // Might need to use listeners here instead
         scoreLabel.textProperty().bind(Bindings.concat("Score: ", game.scoreProperty().asString()));

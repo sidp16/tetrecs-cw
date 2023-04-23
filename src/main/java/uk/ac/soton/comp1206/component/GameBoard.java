@@ -1,5 +1,6 @@
 package uk.ac.soton.comp1206.component;
 
+import java.util.HashSet;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
@@ -53,7 +54,7 @@ public class GameBoard extends GridPane {
     /**
      * The blocks inside the grid
      */
-    GameBlock[][] blocks;
+    public GameBlock[][] blocks;
 
     /**
      * The listener to call when a specific block is clicked
@@ -203,6 +204,12 @@ public class GameBoard extends GridPane {
     private void boardClicked(MouseEvent event) {
         if (rightClickedListener != null) {
             rightClickedListener.onRightClicked();
+        }
+    }
+
+    public void fadeOut(HashSet<GameBlockCoordinate> blockCoordinates) {
+        for (GameBlockCoordinate coordinates : blockCoordinates) {
+            getBlock(coordinates.getX(), coordinates.getY()).fadeOut();
         }
     }
 }

@@ -10,7 +10,9 @@ import org.apache.logging.log4j.Logger;
 import uk.ac.soton.comp1206.Multimedia;
 import uk.ac.soton.comp1206.component.GameBlock;
 import uk.ac.soton.comp1206.component.GameBlockCoordinate;
+import uk.ac.soton.comp1206.event.LineClearedListener;
 import uk.ac.soton.comp1206.event.NextPieceListener;
+import uk.ac.soton.comp1206.scene.ChallengeScene;
 
 /**
  * The Game class handles the main logic, state and properties of the TetrECS game. Methods to manipulate the game state
@@ -52,6 +54,7 @@ public class Game {
     private final IntegerProperty multiplier;
 
     private NextPieceListener nextPieceListener;
+    private LineClearedListener lineClearedListener;
 
 
     public int getScore() {
@@ -121,6 +124,10 @@ public class Game {
         if (nextPieceListener != null) {
             nextPieceListener.nextPiece(nextPiece, followingPiece);
         }
+    }
+
+    public void setOnLineCleared(LineClearedListener listener) {
+        lineClearedListener = listener;
     }
 
     public void setMultiplier(int multiplier) {
@@ -229,7 +236,7 @@ public class Game {
             }
         }
         score(linesCleared, blocksToClear.size());
-        checkMultiplier(linesCleared);
+        checkMultiplier(linesCleared, blocksToClear);
         clearBlocks(blocksToClear);
         changeLevel();
     }
@@ -247,9 +254,12 @@ public class Game {
      * Increments multiplier by 1 if > 0, resets if no lines cleared
      * @param linesCleared the number of lines cleared in the turn
      */
-    public void checkMultiplier(int linesCleared) {
+    public void checkMultiplier(int linesCleared, HashSet<GameBlockCoordinate> blocksToClear) {
         if (linesCleared > 0) {
             increaseMultiplier();
+            if (lineClearedListener != null) {
+                lineClearedListener.setOnLineCleared(blocksToClear);
+            }
         } else {
             resetMultiplier();
         }
