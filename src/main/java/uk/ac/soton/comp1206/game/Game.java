@@ -56,6 +56,8 @@ public class Game {
     private NextPieceListener nextPieceListener;
     private LineClearedListener lineClearedListener;
 
+    private Multimedia audioPlayer;
+
 
     public int getScore() {
         return score.get();
@@ -168,6 +170,7 @@ public class Game {
         logger.info("Initialising game");
         followingPiece = spawnPiece();
         nextPiece();
+        audioPlayer = new Multimedia();
     }
 
 
@@ -184,6 +187,7 @@ public class Game {
         if (grid.canPlayPiece(currentPiece, x,y)) {
             // Can play the piece
             grid.playPiece(currentPiece, x, y);
+            audioPlayer.playAudioFile("place.wav");
             nextPiece();
             afterPiece();
         } else {

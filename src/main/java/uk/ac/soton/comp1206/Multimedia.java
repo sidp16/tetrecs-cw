@@ -1,32 +1,27 @@
 package uk.ac.soton.comp1206;
 
-import javafx.scene.image.Image;
+import java.nio.file.Paths;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaPlayer.Status;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.spi.AbstractLogger;
 
 public class Multimedia {
   private MediaPlayer audioPlayer;
   private MediaPlayer musicPlayer;
   private static final Logger logger = LogManager.getLogger(Multimedia.class);
-
-  public static Image qgetImage(String file) {
-    logger.info("Image " + file + "displayed");
-    return new Image(Multimedia.class.getResource("/images/" + file).toExternalForm());
-  }
-
-  public void playBackgroundMusic(String pathToFile) {
-    Media audio = new Media(pathToFile);
+  public void playMusic(String pathToFile) {
+    String specificPath = Paths.get("src/main/resources/music/").toUri().toString();
+    Media audio = new Media(specificPath + pathToFile);
     musicPlayer = new MediaPlayer(audio);
     musicPlayer.setCycleCount(MediaPlayer.INDEFINITE);
     musicPlayer.play();
   }
 
   public void playAudioFile(String pathToFile) {
-    Media music = new Media(pathToFile);
+    String specificPath = Paths.get("src/main/resources/sounds/").toUri().toString();
+    Media music = new Media(specificPath + pathToFile);
     audioPlayer = new MediaPlayer(music);
 
     audioPlayer.play();

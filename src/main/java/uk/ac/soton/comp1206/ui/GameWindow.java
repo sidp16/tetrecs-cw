@@ -73,6 +73,9 @@ public class GameWindow {
         Font.loadFont(getClass().getResourceAsStream("/style/Orbitron-ExtraBold.ttf"),32);
     }
 
+    public void startInstructions() {
+    }
+
     /**
      * Display the main menu
      */

@@ -20,6 +20,7 @@ public class MenuScene extends BaseScene {
 
     private static final Logger logger = LogManager.getLogger(MenuScene.class);
 
+    private Text play, instructions;
     /**
      * Create a new menu scene
      * @param gameWindow the Game Window this will be displayed in
@@ -47,18 +48,40 @@ public class MenuScene extends BaseScene {
         var mainPane = new BorderPane();
         menuPane.getChildren().add(mainPane);
 
+        // Box for title
+        var topBar = new HBox();
+        topBar.setAlignment(Pos.CENTER);
+        mainPane.setTop(topBar);
+
         // Title
-        ImageView title = new ImageView(Multimedia.getImage("TetrECS.png"));
-        title.setFitHeight(130);
-        title.setPreserveRatio(true);
-        mainPane.setCenter(title);
+        var titleBox = new VBox();
+        titleBox.setAlignment(Pos.CENTER);
+        topBar.getChildren().add(titleBox);
+        var title = new Text("TetrECS");
+        title.getStyleClass().add("menutitle");
+        titleBox.getChildren().add(title);
+        titleBox.setPadding(new Insets(20,0,0,0));
 
-        //For now, let us just add a button that starts the game. I'm sure you'll do something way better.
-        var button = new Button("Play");
-        mainPane.setCenter(button);
+        // Menu items
+        var menuItems = new VBox(10);
+        menuItems.setPadding(new Insets(15));
+        menuItems.setAlignment(Pos.CENTER);
+        mainPane.setBottom(menuItems);
 
-        //Bind the button action to the startGame method in the menu
-        button.setOnAction(this::startGame);
+        play = new Text("Play");
+        play.getStyleClass().add("menuItem");
+        play.setOnMouseClicked(event -> {
+            gameWindow.startChallenge();
+        });
+
+        instructions = new Text("Instructions");
+        instructions.getStyleClass().add("menuItem");
+        instructions.setOnMouseClicked(event -> {
+            logger.info("Instructions button clicked");
+        });
+
+        menuItems.getChildren().addAll(play, instructions);
+
     }
 
     /**
