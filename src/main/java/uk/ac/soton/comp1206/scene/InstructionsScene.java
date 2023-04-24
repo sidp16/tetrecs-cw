@@ -29,7 +29,6 @@ public class InstructionsScene extends BaseScene {
   private static final Logger logger = LogManager.getLogger(InstructionsScene.class);
 
   private Multimedia audioPlayer, musicPlayer;
-  private ScrollPane scrollPane;
 
   /**
    * Creates a new instructions scene

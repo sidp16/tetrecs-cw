@@ -213,6 +213,11 @@ public class Game {
         gameLoopListener();
     }
 
+    public void stop() {
+        logger.info("Ending game");
+        this.timer.shutdownNow();
+    }
+
     /**
      * Initialise a new game and set up anything that needs to be done at the start
      */

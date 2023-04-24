@@ -1,5 +1,6 @@
 package uk.ac.soton.comp1206.scene;
 
+import javafx.animation.RotateTransition;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -7,8 +8,10 @@ import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
+import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import uk.ac.soton.comp1206.App;
 import uk.ac.soton.comp1206.Multimedia;
 import uk.ac.soton.comp1206.game.Game;
 import uk.ac.soton.comp1206.ui.GamePane;
@@ -21,7 +24,7 @@ public class MenuScene extends BaseScene {
 
     private static final Logger logger = LogManager.getLogger(MenuScene.class);
 
-    private Text play, instructions, controls;
+    private Text play, instructions, exit;
 
     private Multimedia audioPlayer, musicPlayer;
 
@@ -69,6 +72,13 @@ public class MenuScene extends BaseScene {
         titleBox.getChildren().add(titleImage);
         titleBox.setPadding(new Insets(100,0,0,0));
 
+        RotateTransition rotater = new RotateTransition(new Duration(3000.0), titleImage);
+        rotater.setCycleCount(-1);
+        rotater.setFromAngle(-5.0);
+        rotater.setToAngle(5.0);
+        rotater.setAutoReverse(true);
+        rotater.play();
+
         // Menu items
         var menuItems = new VBox(10);
         menuItems.setPadding(new Insets(0,0,20,0));
@@ -79,10 +89,10 @@ public class MenuScene extends BaseScene {
         play.getStyleClass().add("menuItem");
         play.setOnMouseClicked(event -> {
             musicPlayer.stopMusic();
-            gameWindow.startChallenge();
+            this.gameWindow.startChallenge();
         });
 
-        instructions = new Text("Instructions");
+        instructions = new Text("How to Play");
         instructions.getStyleClass().add("menuItem");
         instructions.setOnMouseClicked(event -> {
             logger.info("Instructions button clicked");
@@ -90,7 +100,15 @@ public class MenuScene extends BaseScene {
             gameWindow.startInstructions();
         });
 
-        menuItems.getChildren().addAll(play, instructions);
+        exit = new Text("Exit");
+        exit.getStyleClass().add("menuItem");
+        exit.setOnMouseClicked(event -> {
+            logger.info("Exit button clicked");
+            musicPlayer.stopMusic();
+            App.getInstance().shutdown();
+        });
+
+        menuItems.getChildren().addAll(play, instructions, exit);
 
     }
 

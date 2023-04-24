@@ -5,9 +5,14 @@ import java.util.Set;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -51,6 +56,9 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
 
     protected HBox timer;
 
+    protected IntegerProperty score = new SimpleIntegerProperty(0);
+    protected IntegerProperty hiscore = new SimpleIntegerProperty(0);
+
     /**
      * Keyboard input
      */
@@ -83,8 +91,6 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
         challengePane.getStyleClass().add("menu-background");
         root.getChildren().add(challengePane);
 
-        game.registerNextPieceListener(this);
-        game.setOnLineCleared(this::fadeLine);
 
         musicPlayer = new Multimedia();
         audioPlayer = new Multimedia();
@@ -97,15 +103,15 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
         // VBox to hold text objects
         var leftPane = new VBox();
         leftPane.setAlignment(Pos.CENTER);
-        leftPane.setPadding(new Insets(0,0,0,15));
+        leftPane.setPadding(new Insets(0,0,0,10));
 
         // Vbox to hold the board displaying the next piece, and following piece
         var rightPane = new VBox(10);
         rightPane.setAlignment(Pos.CENTER);
-        rightPane.setPadding(new Insets(0,15,0,0));
+        rightPane.setPadding(new Insets(0,10,0,0));
 
         // Top bar for socre, title and lives
-        var topBar = new HBox(125);
+        var topBar = new HBox(50);
         topBar.setAlignment(Pos.CENTER);
         BorderPane.setMargin(topBar, new Insets(10,0,0,0));
         mainPane.setTop(topBar);
@@ -113,8 +119,6 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
         // The main tetris board
         board = new GameBoard(game.getGrid(), gameWindow.getWidth() / 2,
             gameWindow.getWidth() / 2);
-        board.setOnBlockClick(this::blockClicked);
-        board.setOnRightClicked(this::onRightClicked);
         board.getStyleClass().add("gameBox");
         mainPane.setCenter(board);
 
@@ -123,10 +127,8 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
         var currentPieceText = new Text("Current Piece:");
         currentPieceText.getStyleClass().add("heading");
         nextPieceBoard = new PieceBoard(3, 3,
-            gameWindow.getWidth() / 5, gameWindow.getWidth() / 5);
-        nextPieceBoard.setOnRightClicked(this);
+            gameWindow.getWidth() / 6, gameWindow.getWidth() / 6);
         nextPieceBoard.blocks[1][1].center();
-        nextPieceBoard.setOnBlockClick(this::rotatePiece);
         nextPieceBoard.setPadding(new Insets(5,0,0,0));
         nextPieceBoard.getStyleClass().add("sideBox");
 
@@ -135,8 +137,6 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
         nextPieceText.getStyleClass().add("heading");
         tertiaryBoard = new PieceBoard(3, 3,
             gameWindow.getWidth() / 7, gameWindow.getWidth() / 7);
-        tertiaryBoard.setOnRightClicked(this);
-        tertiaryBoard.setOnBlockClick(this::swapPiece);
         tertiaryBoard.setPadding(new Insets(15,0,0,0));
         tertiaryBoard.getStyleClass().add("sideBox");
 
@@ -156,17 +156,23 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
         livesInfo.setAlignment(Pos.CENTER);
         livesInfo.getChildren().addAll(livesTitle,livesLabel);
 
+        // Image title
+        ImageView titleImage = new ImageView(Multimedia.class.getResource("/images/TetrECS.png").toExternalForm());
+        titleImage.setFitHeight(75);
+        titleImage.setPreserveRatio(true);
+
         // Title
         var title = new VBox();
         title.setAlignment(Pos.CENTER);
-        title.getChildren().add(titleLabel);
+        title.getChildren().add(titleImage);
+
 
         topBar.getChildren().addAll(scoreInfo,title, livesInfo);
 
         // Visual timer
         timer = new HBox();
         timerBar = new Rectangle();
-        timerBar.setHeight(10);
+        timerBar.setHeight(15);
         timer.getChildren().add(timerBar);
         mainPane.setBottom(timer);
 
@@ -226,7 +232,7 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
         titleLabel.getStyleClass().add("title");
 
         // Might need to use listeners here instead
-        scoreLabel.textProperty().bind(Bindings.concat(game.scoreProperty().asString()));
+        scoreLabel.textProperty().bind(Bindings.concat(this.score.asString()));
         levelLabel.textProperty().bind(Bindings.concat("Level: ", game.levelProperty().asString()));
         multiplierLabel.textProperty()
             .bind(Bindings.concat("Multiplier: ", game.multiplierProperty().asString()));
@@ -240,8 +246,6 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
      */
     private void blockClicked(GameBlock gameBlock) {
         game.blockClicked(gameBlock);
-        nextPieceBoard.clear();
-        tertiaryBoard.clear();
         nextPiece(game.getCurrentPiece(), game.getFollowingPiece());
     }
 
@@ -262,8 +266,35 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
     public void initialise() {
         logger.info("Initialising Challenge");
         game.start();
-        game.setOnGameLoop(this::timer);
+
         scene.setOnKeyPressed(this::keyboardInputs);
+
+        board.setOnBlockClick(this::blockClicked);
+        board.setOnRightClicked(this::onRightClicked);
+
+        nextPieceBoard.setOnRightClicked(this);
+        nextPieceBoard.setOnBlockClick(this::rotatePiece);
+
+        tertiaryBoard.setOnRightClicked(this);
+        tertiaryBoard.setOnBlockClick(this::swapPiece);
+
+        game.setOnGameLoop(this::timer);
+        game.registerNextPieceListener(this);
+        game.setOnLineCleared(this::fadeLine);
+        this.game.scoreProperty().addListener(this::setScore);
+
+        nextPiece(game.getCurrentPiece(), game.getFollowingPiece());
+    }
+
+    protected void setScore(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+        if (newValue.intValue() > this.hiscore.get()) {
+            this.hiscore.set(newValue.intValue());
+        }
+
+        Timeline timeline = new Timeline(new KeyFrame(Duration.ZERO,
+            new KeyValue(this.score, oldValue)), new KeyFrame(new Duration(500.0),
+            new KeyValue(this.score, newValue)));
+        timeline.play();
     }
 
     /**
@@ -281,8 +312,6 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
     @Override
     public void onRightClicked() {
         game.rotateCurrentPiece(1);
-        nextPieceBoard.clear();
-        tertiaryBoard.clear();
         nextPiece(game.getCurrentPiece(), game.getFollowingPiece());
     }
 
@@ -344,6 +373,7 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
                 game.stopTimer();
                 musicPlayer.stopMusic();
                 audioPlayer.stopAudio();
+                this.game.stop();
                 gameWindow.startMenu();
                 break;
             case E:
