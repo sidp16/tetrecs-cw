@@ -57,6 +57,15 @@
     -fx-stroke: black;
     -fx-effect: dropshadow(gaussian, black, 1, 1.0, 1, 1);
 }
+.instructionstitle {
+    -fx-fill: white;
+    -fx-font-family: 'Orbitron';
+    -fx-font-size: 64px;
+    -fx-font-weight: 900;
+    -fx-border-color: black;
+    -fx-stroke: black;
+    -fx-effect: dropshadow(gaussian, black, 1, 1.0, 1, 1);
+}
 
 .menutitle {
     -fx-fill: white;
@@ -235,4 +244,25 @@ TextField {
     -fx-font-size: 10px;
     -fx-font-family: 'Orbitron';
     -fx-fill: white;
+}
+
+/* Set the scrollbar thumb and track to be transparent */
+.my-scrollpane .scroll-bar:vertical .thumb {
+    -fx-background-color: transparent;
+}
+
+/* Set the scrollbar increment and decrement buttons to be transparent */
+.my-scrollpane .scroll-bar:vertical .increment-button,
+.my-scrollpane .scroll-bar:vertical .decrement-button {
+    -fx-background-color: transparent;
+}
+
+/* Set the scrollbar thumb hover and pressed state to be transparent */
+.my-scrollpane .scroll-bar:vertical .thumb:hover,
+.my-scrollpane .scroll-bar:vertical .thumb:pressed {
+    -fx-background-color: transparent;
+}
+
+.my-scrollpane .scroll-bar:horizontal .thumb {
+    -fx-background-color: transparent;
 }

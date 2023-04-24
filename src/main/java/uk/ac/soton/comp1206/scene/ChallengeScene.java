@@ -342,6 +342,8 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
                 break;
             case ESCAPE:
                 game.stopTimer();
+                musicPlayer.stopMusic();
+                audioPlayer.stopAudio();
                 gameWindow.startMenu();
                 break;
             case E:

@@ -57,20 +57,23 @@ public class MenuScene extends BaseScene {
         topBar.setAlignment(Pos.CENTER);
         mainPane.setTop(topBar);
 
+        // Image title
+        ImageView titleImage = new ImageView(Multimedia.class.getResource("/images/TetrECS.png").toExternalForm());
+        titleImage.setFitHeight(150);
+        titleImage.setPreserveRatio(true);
+
         // Title
         var titleBox = new VBox();
         titleBox.setAlignment(Pos.CENTER);
         topBar.getChildren().add(titleBox);
-        var title = new Text("TetrECS");
-        title.getStyleClass().add("menutitle");
-        titleBox.getChildren().add(title);
-        titleBox.setPadding(new Insets(20,0,0,0));
+        titleBox.getChildren().add(titleImage);
+        titleBox.setPadding(new Insets(100,0,0,0));
 
         // Menu items
         var menuItems = new VBox(10);
-        menuItems.setPadding(new Insets(15));
+        menuItems.setPadding(new Insets(0,0,20,0));
         menuItems.setAlignment(Pos.CENTER);
-        mainPane.setBottom(menuItems);
+        mainPane.setCenter(menuItems);
 
         play = new Text("Play");
         play.getStyleClass().add("menuItem");
@@ -87,12 +90,7 @@ public class MenuScene extends BaseScene {
             gameWindow.startInstructions();
         });
 
-        controls = new Text("Controls");
-        controls.getStyleClass().add("menuItem");
-        controls.setOnMouseClicked(event -> {
-            logger.info("Controls button clicked");
-        });
-        menuItems.getChildren().addAll(play, instructions, controls);
+        menuItems.getChildren().addAll(play, instructions);
 
     }
 
