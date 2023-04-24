@@ -98,7 +98,7 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
         leftPane.setPadding(new Insets(0,0,0,15));
 
         // Vbox to hold the board displaying the next piece, and following piece
-        var rightPane = new VBox();
+        var rightPane = new VBox(10);
         rightPane.setAlignment(Pos.CENTER);
         rightPane.setPadding(new Insets(0,15,0,0));
 
@@ -111,9 +111,10 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
         // The main tetris board
         board = new GameBoard(game.getGrid(), gameWindow.getWidth() / 2,
             gameWindow.getWidth() / 2);
-        mainPane.setCenter(board);
         board.setOnBlockClick(this::blockClicked);
         board.setOnRightClicked(this::onRightClicked);
+        board.getStyleClass().add("gameBox");
+        mainPane.setCenter(board);
 
 
         // The secondary board displaying the next piece
@@ -125,6 +126,7 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
         nextPieceBoard.blocks[1][1].center();
         nextPieceBoard.setOnBlockClick(this::rotatePiece);
         nextPieceBoard.setPadding(new Insets(5,0,0,0));
+        nextPieceBoard.getStyleClass().add("sideBox");
 
         // Tertiary board displaying the piece after the next one
         var nextPieceText = new Text("Next:");
@@ -134,6 +136,7 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
         tertiaryBoard.setOnRightClicked(this);
         tertiaryBoard.setOnBlockClick(this::swapPiece);
         tertiaryBoard.setPadding(new Insets(15,0,0,0));
+        tertiaryBoard.getStyleClass().add("sideBox");
 
         buildText();
 

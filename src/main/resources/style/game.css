@@ -184,6 +184,14 @@
     -fx-border-width: 1;
 }
 
+.sideBox {
+    -fx-padding: 10;
+    -fx-background-color: rgba(0, 0, 0, 0);
+    -fx-border-color: white;
+    -fx-border-width: 1;
+}
+
+
 .scroller {
     -fx-background-color: transparent;
 }
