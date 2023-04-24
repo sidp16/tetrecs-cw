@@ -86,7 +86,7 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
 
         musicPlayer = new Multimedia();
         audioPlayer = new Multimedia();
-        musicPlayer.playMusic("game.wav");
+//        musicPlayer.playMusic("game.wav");
 
         // Vbox to hold the main board
         var mainPane = new BorderPane();

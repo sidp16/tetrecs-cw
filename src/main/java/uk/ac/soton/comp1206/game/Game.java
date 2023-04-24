@@ -18,6 +18,7 @@ import uk.ac.soton.comp1206.component.PieceBoard;
 import uk.ac.soton.comp1206.event.GameLoopListener;
 import uk.ac.soton.comp1206.event.LineClearedListener;
 import uk.ac.soton.comp1206.event.NextPieceListener;
+import uk.ac.soton.comp1206.ui.GameWindow;
 
 /**
  * The Game class handles the main logic, state and properties of the TetrECS game. Methods to manipulate the game state
@@ -47,11 +48,9 @@ public class Game {
     protected final Grid grid;
 
     /**
-     * The current piece that is next to be played
+     * The current piece and the next piece to be played
      */
-    private GamePiece currentPiece;
-
-    private GamePiece followingPiece;
+    private GamePiece currentPiece, followingPiece;
 
     private ScheduledExecutorService timer = null;
 
@@ -64,13 +63,26 @@ public class Game {
     private LineClearedListener lineClearedListener;
     private GameLoopListener gameLoopListener = null;
 
+    /**
+     * Play sounds when events have occured
+     */
     private Multimedia audioPlayer;
+    /**
+     * Game loop
+     */
     private ScheduledFuture loop;
+    /**
+     * To track whether a level up has occured
+     */
+    private int oldLevel;
 
     public int getScore() {
         return score.get();
     }
 
+    /**
+     * @return the score property
+     */
     public IntegerProperty scoreProperty() {
         return score;
     }
@@ -79,6 +91,9 @@ public class Game {
         this.score.set(score);
     }
 
+    /**
+     * @return the current level
+     */
     public int getLevel() {
         return level.get();
     }
@@ -136,20 +151,34 @@ public class Game {
         }
     }
 
+    /**
+     * Listens for the end of the timer
+     */
     private void gameLoopListener() {
         if (gameLoopListener != null) {
             gameLoopListener.setOnGameLoop(getTimerDelay());
         }
     }
 
+    /**
+     * Listens for the next piece
+     * @param listener next piece listener
+     */
     public void setOnGameLoop(GameLoopListener listener) {
         gameLoopListener = listener;
     }
 
+    /**
+     * Listens for line cleared
+     * @param listener cleared line listener
+     */
     public void setOnLineCleared(LineClearedListener listener) {
         lineClearedListener = listener;
     }
 
+    /**
+     * @param multiplier sets the multiplier to the value passed into this parameter
+     */
     public void setMultiplier(int multiplier) {
         this.multiplier.set(multiplier);
     }
@@ -221,6 +250,10 @@ public class Game {
         }
     }
 
+    /**
+     * Handles the checks of if lines need to be cleared and calls any necessary methods
+     * to continue the game such as scoring
+     */
     public void afterPiece() {
         // Check if we need to clear any lines
         var columnToClear = 0;
@@ -268,6 +301,7 @@ public class Game {
         checkMultiplier(linesCleared, blocksToClear);
         clearBlocks(blocksToClear);
         changeLevel();
+        levelSounds(level.get());
     }
 
     /**
@@ -276,6 +310,18 @@ public class Game {
     public void changeLevel() {
         int value = score.get() / 1000;
         level.set(value);
+    }
+
+    /**
+     * @param currentLevel takes in the current level the user is on
+     * Plays an audio file indicating a level up
+     */
+    public void levelSounds(int currentLevel) {
+        if (currentLevel != oldLevel) {
+            logger.info("Leveled up");
+            audioPlayer.playAudioFile("level.wav");
+            oldLevel = currentLevel;
+        }
     }
 
 
@@ -317,6 +363,7 @@ public class Game {
             int clearY = i.getY();
             grid.set(clearX,clearY,0);
         }
+        logger.info("All necessary blocks cleared");
     }
 
     /**
@@ -330,6 +377,9 @@ public class Game {
         score.set(score.add(addScore).get());
     }
 
+    /**
+     * Rotates the current piece 90 degrees clockwise
+     */
     public void rotateCurrentPiece() {
         currentPiece.rotate();
         logger.info("{} has been rotated", currentPiece.toString());
@@ -358,12 +408,20 @@ public class Game {
         return rows;
     }
 
+    /**
+     * Replace the current piece with the next piece, while generating a new piece
+     * for the followingPiece
+     */
     public void nextPiece() {
         currentPiece = followingPiece;
         followingPiece = spawnPiece();
         logger.info("The next piece is: {}", currentPiece);
         notifyNextPieceListener(currentPiece, followingPiece);
     }
+
+    /**
+     * @return a GamePiece object, after creating a piece
+     */
     public GamePiece spawnPiece() {
         var maxPieces = GamePiece.PIECES;
         var randomPiece = random.nextInt(maxPieces);
@@ -372,12 +430,19 @@ public class Game {
         return piece;
     }
 
+    /**
+     * Swaps the current piece with the next piece
+     */
     public void swapCurrentPiece() {
         GamePiece tempPiece = currentPiece; // Store current piece in a temporary variable
         currentPiece = followingPiece; // Set current piece to the following piece
         followingPiece = tempPiece; // Set following piece to the temporary variable
+        logger.info("{} and {} have been swapped", currentPiece, followingPiece);
     }
 
+    /**
+     * @return the timer length dependent on which level you are currently on
+     */
     public int getTimerDelay() {
         int delay;
         delay = 12000 - (500 * this.getLevel());
@@ -389,11 +454,15 @@ public class Game {
 
     public void removeLife() {
         lives.set(lives.get() - 1);
+        logger.info("Lost a life");
     }
 
+    /**
+     * @return returns a boolean, true if lives >= 0 and false if below 0
+     */
     public boolean isAlive() {
         boolean alive;
-        if (lives.get() > 0) {
+        if (lives.get() >= 0) {
             alive = true;
         } else {
             alive = false;
@@ -401,9 +470,13 @@ public class Game {
         return alive;
     }
 
+    /**
+     * Loop through certain events when the timer ends
+     */
     public void gameLoop() {
         if (isAlive()) removeLife();
         nextPiece();
+        audioPlayer.playAudioFile("lifelose.wav");
         setMultiplier(1);
         gameLoopListener();
         loop = this.timer.schedule(this::gameLoop, getTimerDelay(), TimeUnit.MILLISECONDS);
