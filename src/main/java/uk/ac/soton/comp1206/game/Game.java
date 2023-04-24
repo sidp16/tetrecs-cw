@@ -312,6 +312,10 @@ public class Game {
         level.set(value);
     }
 
+    public void stopTimer() {
+        this.timer.shutdownNow();
+    }
+
     /**
      * @param currentLevel takes in the current level the user is on
      * Plays an audio file indicating a level up
@@ -380,8 +384,8 @@ public class Game {
     /**
      * Rotates the current piece 90 degrees clockwise
      */
-    public void rotateCurrentPiece() {
-        currentPiece.rotate();
+    public void rotateCurrentPiece(int num) {
+        currentPiece.rotate(num);
         logger.info("{} has been rotated", currentPiece.toString());
     }
     /**

@@ -10,8 +10,8 @@ public class PieceBoard extends GameBoard {
 
   private static final Logger logger = LogManager.getLogger(PieceBoard.class);
 
-  public PieceBoard(Grid grid, double width, double height) {
-    super(grid, width, height);
+  public PieceBoard(double width, double height) {
+    super(3,3, width, height);
   }
 
   public PieceBoard(int cols, int rows, double width, double height) {

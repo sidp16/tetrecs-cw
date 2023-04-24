@@ -8,6 +8,7 @@ import javafx.animation.Timeline;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -75,6 +76,7 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
 
         root = new GamePane(gameWindow.getWidth(), gameWindow.getHeight());
 
+
         var challengePane = new StackPane();
         challengePane.setMaxWidth(gameWindow.getWidth());
         challengePane.setMaxHeight(gameWindow.getHeight());
@@ -86,7 +88,7 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
 
         musicPlayer = new Multimedia();
         audioPlayer = new Multimedia();
-//        musicPlayer.playMusic("game.wav");
+        musicPlayer.playMusic("game.wav");
 
         // Vbox to hold the main board
         var mainPane = new BorderPane();
@@ -176,7 +178,6 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
         mainPane.setLeft(leftPane);
         mainPane.setRight(rightPane);
 
-
     }
 
 
@@ -194,12 +195,21 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
         nextPiece(game.getCurrentPiece(), game.getFollowingPiece());
         audioPlayer.playAudioFile("pling.wav");
     }
+
+    /**
+     * Rotate the piece right
+     * @param gameBlock gameBlock passed
+     */
     private void rotatePiece(GameBlock gameBlock) {
-        game.rotateCurrentPiece();
+        game.rotateCurrentPiece(1);
         nextPieceBoard.clear();
         tertiaryBoard.clear();
         nextPiece(game.getCurrentPiece(), game.getFollowingPiece());
         audioPlayer.playAudioFile("rotate.wav");
+    }
+
+    private void rotatePieceLeft() {
+        game.rotateCurrentPiece(3);
     }
 
     public void buildText() {
@@ -253,6 +263,7 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
         logger.info("Initialising Challenge");
         game.start();
         game.setOnGameLoop(this::timer);
+        scene.setOnKeyPressed(this::keyboardInputs);
     }
 
     /**
@@ -269,7 +280,7 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
 
     @Override
     public void onRightClicked() {
-        game.rotateCurrentPiece();
+        game.rotateCurrentPiece(1);
         nextPieceBoard.clear();
         tertiaryBoard.clear();
         nextPiece(game.getCurrentPiece(), game.getFollowingPiece());
@@ -289,5 +300,59 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
         colourChange.getKeyFrames().add(new KeyFrame(new Duration((float) number * 3 / 4), red));
         colourChange.getKeyFrames().add(new KeyFrame(new Duration(number), end));
         colourChange.play();
+    }
+
+    private void keyboardInputs(KeyEvent key) {
+        switch (key.getCode()) {
+            case W:
+            case UP:
+                if (y > 0) {
+                    y--;
+                    board.hover(board.getBlock(x, y));
+                }
+                break;
+            case A:
+            case LEFT:
+                if (x > 0) {
+                    x--;
+                    board.hover(board.getBlock(x, y));
+                }
+                break;
+            case S:
+            case DOWN:
+                if (y < game.getRows() - 1) {
+                    y++;
+                    board.hover(board.getBlock(x, y));
+                }
+                break;
+            case D:
+            case RIGHT:
+                if (x < game.getCols() - 1) {
+                    x++;
+                    board.hover(board.getBlock(x, y));
+                }
+                break;
+            case ENTER:
+            case X:
+                blockClicked(board.getBlock(x, y));
+                break;
+            case R:
+            case SPACE:
+                swapPiece(new GameBlock(board,1,1,1,1));
+                break;
+            case ESCAPE:
+                game.stopTimer();
+                gameWindow.startMenu();
+                break;
+            case E:
+            case C:
+            case CLOSE_BRACKET:
+                rotatePieceLeft();
+                break;
+            case Q:
+            case Z:
+            case OPEN_BRACKET:
+                rotatePiece(new GameBlock(board,1,1,1,1));
+        }
     }
 }

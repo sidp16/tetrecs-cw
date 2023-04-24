@@ -10,6 +10,7 @@ import javafx.scene.text.Text;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.ac.soton.comp1206.Multimedia;
+import uk.ac.soton.comp1206.game.Game;
 import uk.ac.soton.comp1206.ui.GamePane;
 import uk.ac.soton.comp1206.ui.GameWindow;
 
@@ -20,7 +21,10 @@ public class MenuScene extends BaseScene {
 
     private static final Logger logger = LogManager.getLogger(MenuScene.class);
 
-    private Text play, instructions;
+    private Text play, instructions, controls;
+
+    private Multimedia audioPlayer, musicPlayer;
+
     /**
      * Create a new menu scene
      * @param gameWindow the Game Window this will be displayed in
@@ -71,6 +75,7 @@ public class MenuScene extends BaseScene {
         play = new Text("Play");
         play.getStyleClass().add("menuItem");
         play.setOnMouseClicked(event -> {
+            musicPlayer.stopMusic();
             gameWindow.startChallenge();
         });
 
@@ -78,9 +83,16 @@ public class MenuScene extends BaseScene {
         instructions.getStyleClass().add("menuItem");
         instructions.setOnMouseClicked(event -> {
             logger.info("Instructions button clicked");
+            musicPlayer.stopMusic();
+            gameWindow.startInstructions();
         });
 
-        menuItems.getChildren().addAll(play, instructions);
+        controls = new Text("Controls");
+        controls.getStyleClass().add("menuItem");
+        controls.setOnMouseClicked(event -> {
+            logger.info("Controls button clicked");
+        });
+        menuItems.getChildren().addAll(play, instructions, controls);
 
     }
 
@@ -89,7 +101,9 @@ public class MenuScene extends BaseScene {
      */
     @Override
     public void initialise() {
-
+        logger.info("Initialising" + this.getClass().getName());
+        musicPlayer = new Multimedia();
+        musicPlayer.playMusic("menu.mp3");
     }
 
     /**

@@ -74,6 +74,8 @@ public class GameWindow {
     }
 
     public void startInstructions() {
+
+        loadScene(new InstructionsScene(this));
     }
 
     /**
