@@ -2,11 +2,17 @@ package uk.ac.soton.comp1206.scene;
 
 import java.util.HashSet;
 import java.util.Set;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
+import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.ac.soton.comp1206.Multimedia;
@@ -40,6 +46,14 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
 
     private Multimedia audioPlayer, musicPlayer;
 
+    private Rectangle timerBar;
+
+    protected HBox timer;
+
+    /**
+     * Keyboard input
+     */
+    private int x = 0, y = 0;
     /**
      * Create a new Single Player challenge scene
      *
@@ -101,7 +115,10 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
         board.setOnBlockClick(this::blockClicked);
         board.setOnRightClicked(this::onRightClicked);
 
+
         // The secondary board displaying the next piece
+        var currentPieceText = new Text("Current Piece:");
+        currentPieceText.getStyleClass().add("heading");
         nextPieceBoard = new PieceBoard(3, 3,
             gameWindow.getWidth() / 5, gameWindow.getWidth() / 5);
         nextPieceBoard.setOnRightClicked(this);
@@ -110,6 +127,8 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
         nextPieceBoard.setPadding(new Insets(5,0,0,0));
 
         // Tertiary board displaying the piece after the next one
+        var nextPieceText = new Text("Next:");
+        nextPieceText.getStyleClass().add("heading");
         tertiaryBoard = new PieceBoard(3, 3,
             gameWindow.getWidth() / 7, gameWindow.getWidth() / 7);
         tertiaryBoard.setOnRightClicked(this);
@@ -139,9 +158,16 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
 
         topBar.getChildren().addAll(scoreInfo,title, livesInfo);
 
+        // Visual timer
+        timer = new HBox();
+        timerBar = new Rectangle();
+        timerBar.setHeight(10);
+        timer.getChildren().add(timerBar);
+        mainPane.setBottom(timer);
+
 
         // Adding spacing and each side's children to the main pane
-        rightPane.getChildren().addAll(nextPieceBoard, tertiaryBoard);
+        rightPane.getChildren().addAll(currentPieceText,nextPieceBoard,nextPieceText, tertiaryBoard);
         leftPane.getChildren().addAll(levelLabel, multiplierLabel);
         leftPane.setSpacing(20);
         mainPane.setLeft(leftPane);
@@ -223,6 +249,7 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
     public void initialise() {
         logger.info("Initialising Challenge");
         game.start();
+        game.setOnGameLoop(this::timer);
     }
 
     /**
@@ -231,6 +258,8 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
      */
     @Override
     public void nextPiece(GamePiece nextPiece, GamePiece followingPiece) {
+        nextPieceBoard.clear();
+        tertiaryBoard.clear();
         nextPieceBoard.displayPiece(nextPiece);
         tertiaryBoard.displayPiece(followingPiece);
     }
@@ -241,5 +270,21 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
         nextPieceBoard.clear();
         tertiaryBoard.clear();
         nextPiece(game.getCurrentPiece(), game.getFollowingPiece());
+    }
+
+    protected void timer(int number) {
+        KeyValue start = new KeyValue(timerBar.widthProperty(), timer.getWidth());
+        KeyValue green = new KeyValue(timerBar.fillProperty(), Color.GREEN);
+        KeyValue yellow = new KeyValue(timerBar.fillProperty(), Color.YELLOW);
+        KeyValue red = new KeyValue(timerBar.fillProperty(), Color.RED);
+        KeyValue end = new KeyValue(timerBar.widthProperty(), 0);
+
+        Timeline colourChange = new Timeline();
+        colourChange.getKeyFrames().add(new KeyFrame(new Duration(0), start));
+        colourChange.getKeyFrames().add(new KeyFrame(new Duration(0), green));
+        colourChange.getKeyFrames().add(new KeyFrame(new Duration((float) number / 2), yellow));
+        colourChange.getKeyFrames().add(new KeyFrame(new Duration((float) number * 3 / 4), red));
+        colourChange.getKeyFrames().add(new KeyFrame(new Duration(number), end));
+        colourChange.play();
     }
 }

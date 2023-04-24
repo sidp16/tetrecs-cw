@@ -1,8 +1,11 @@
 package uk.ac.soton.comp1206.game;
 
-import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Random;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import org.apache.logging.log4j.LogManager;
@@ -10,9 +13,11 @@ import org.apache.logging.log4j.Logger;
 import uk.ac.soton.comp1206.Multimedia;
 import uk.ac.soton.comp1206.component.GameBlock;
 import uk.ac.soton.comp1206.component.GameBlockCoordinate;
+import uk.ac.soton.comp1206.component.GameBoard;
+import uk.ac.soton.comp1206.component.PieceBoard;
+import uk.ac.soton.comp1206.event.GameLoopListener;
 import uk.ac.soton.comp1206.event.LineClearedListener;
 import uk.ac.soton.comp1206.event.NextPieceListener;
-import uk.ac.soton.comp1206.scene.ChallengeScene;
 
 /**
  * The Game class handles the main logic, state and properties of the TetrECS game. Methods to manipulate the game state
@@ -48,6 +53,8 @@ public class Game {
 
     private GamePiece followingPiece;
 
+    private ScheduledExecutorService timer = null;
+
     private final IntegerProperty score;
     private final IntegerProperty level;
     private final IntegerProperty lives;
@@ -55,9 +62,10 @@ public class Game {
 
     private NextPieceListener nextPieceListener;
     private LineClearedListener lineClearedListener;
+    private GameLoopListener gameLoopListener = null;
 
     private Multimedia audioPlayer;
-
+    private ScheduledFuture loop;
 
     public int getScore() {
         return score.get();
@@ -128,6 +136,16 @@ public class Game {
         }
     }
 
+    private void gameLoopListener() {
+        if (gameLoopListener != null) {
+            gameLoopListener.setOnGameLoop(getTimerDelay());
+        }
+    }
+
+    public void setOnGameLoop(GameLoopListener listener) {
+        gameLoopListener = listener;
+    }
+
     public void setOnLineCleared(LineClearedListener listener) {
         lineClearedListener = listener;
     }
@@ -153,6 +171,7 @@ public class Game {
         lives = new SimpleIntegerProperty(3);
         multiplier = new SimpleIntegerProperty(1);
 
+        timer = Executors.newSingleThreadScheduledExecutor();
     }
 
     /**
@@ -161,6 +180,8 @@ public class Game {
     public void start() {
         logger.info("Starting game");
         initialiseGame();
+        loop = timer.schedule(this::gameLoop, getTimerDelay(), TimeUnit.MILLISECONDS);
+        gameLoopListener();
     }
 
     /**
@@ -168,7 +189,7 @@ public class Game {
      */
     public void initialiseGame() {
         logger.info("Initialising game");
-        followingPiece = spawnPiece();
+        this.followingPiece = spawnPiece();
         nextPiece();
         audioPlayer = new Multimedia();
     }
@@ -188,11 +209,15 @@ public class Game {
             // Can play the piece
             grid.playPiece(currentPiece, x, y);
             audioPlayer.playAudioFile("place.wav");
-            nextPiece();
             afterPiece();
+            nextPiece();
+            loop.cancel(false);
+            loop = timer.schedule(this::gameLoop, getTimerDelay(), TimeUnit.MILLISECONDS);
+            gameLoopListener();
+            logger.info("Timer reset!");
         } else {
             // Cannot play the piece
-            // TODO: Play sound to indicate error?
+            audioPlayer.playAudioFile("fail.wav");
         }
     }
 
@@ -333,12 +358,11 @@ public class Game {
         return rows;
     }
 
-    public GamePiece nextPiece() {
-        currentPiece = followingPiece; // Once the
+    public void nextPiece() {
+        currentPiece = followingPiece;
         followingPiece = spawnPiece();
         logger.info("The next piece is: {}", currentPiece);
         notifyNextPieceListener(currentPiece, followingPiece);
-        return currentPiece;
     }
     public GamePiece spawnPiece() {
         var maxPieces = GamePiece.PIECES;
@@ -352,6 +376,37 @@ public class Game {
         GamePiece tempPiece = currentPiece; // Store current piece in a temporary variable
         currentPiece = followingPiece; // Set current piece to the following piece
         followingPiece = tempPiece; // Set following piece to the temporary variable
+    }
+
+    public int getTimerDelay() {
+        int delay;
+        delay = 12000 - (500 * this.getLevel());
+        if (delay <= 2500) {
+            delay = 2500;
+        }
+        return delay;
+    }
+
+    public void removeLife() {
+        lives.set(lives.get() - 1);
+    }
+
+    public boolean isAlive() {
+        boolean alive;
+        if (lives.get() > 0) {
+            alive = true;
+        } else {
+            alive = false;
+        }
+        return alive;
+    }
+
+    public void gameLoop() {
+        if (isAlive()) removeLife();
+        nextPiece();
+        setMultiplier(1);
+        gameLoopListener();
+        loop = this.timer.schedule(this::gameLoop, getTimerDelay(), TimeUnit.MILLISECONDS);
     }
 }
 

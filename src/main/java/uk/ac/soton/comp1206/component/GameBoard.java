@@ -124,6 +124,9 @@ public class GameBoard extends GridPane {
         setMaxWidth(width);
         setMaxHeight(height);
 
+        String gridLineStyle = "-fx-border-color: white; -fx-border-width: 3px;";
+        setStyle(gridLineStyle);
+
         setGridLinesVisible(true);
 
         blocks = new GameBlock[cols][rows];

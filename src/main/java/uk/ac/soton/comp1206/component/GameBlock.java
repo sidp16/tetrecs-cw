@@ -139,7 +139,7 @@ public class GameBlock extends Canvas {
         gc.clearRect(0,0,width,height);
 
         //Fill
-        gc.setFill(Color.WHITE);
+        gc.setFill(Color.TRANSPARENT);
         gc.fillRect(0,0, width, height);
 
         //Border
