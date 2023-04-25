@@ -186,7 +186,7 @@ public class GameBlock extends Canvas {
                     return;
                 }
                 var gc = getGraphicsContext2D();
-                gc.setFill(Color.rgb(0,1,0,opacity));
+                gc.setFill(Color.color(0,1.0,0,opacity));
                 gc.fillRect(0,0 ,GameBlock.this.width, GameBlock.this.height);
             }
         };

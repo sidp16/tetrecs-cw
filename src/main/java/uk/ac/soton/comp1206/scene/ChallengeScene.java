@@ -284,6 +284,13 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
         this.game.scoreProperty().addListener(this::setScore);
 
         nextPiece(game.getCurrentPiece(), game.getFollowingPiece());
+
+        game.setOnGameOver(() -> {
+            game.stopTimer();
+            audioPlayer.stopAudio();
+            musicPlayer.stopMusic();
+            gameWindow.startScores(game);
+        });
     }
 
     protected void setScore(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {

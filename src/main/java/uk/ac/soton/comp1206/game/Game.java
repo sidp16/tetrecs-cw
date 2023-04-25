@@ -1,13 +1,16 @@
 package uk.ac.soton.comp1206.game;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.util.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.ac.soton.comp1206.Multimedia;
@@ -16,6 +19,7 @@ import uk.ac.soton.comp1206.component.GameBlockCoordinate;
 import uk.ac.soton.comp1206.component.GameBoard;
 import uk.ac.soton.comp1206.component.PieceBoard;
 import uk.ac.soton.comp1206.event.GameLoopListener;
+import uk.ac.soton.comp1206.event.GameOverListener;
 import uk.ac.soton.comp1206.event.LineClearedListener;
 import uk.ac.soton.comp1206.event.NextPieceListener;
 import uk.ac.soton.comp1206.ui.GameWindow;
@@ -62,6 +66,7 @@ public class Game {
     private NextPieceListener nextPieceListener;
     private LineClearedListener lineClearedListener;
     private GameLoopListener gameLoopListener = null;
+    private GameOverListener gameOverListener;
 
     /**
      * Play sounds when events have occured
@@ -86,6 +91,8 @@ public class Game {
     public IntegerProperty scoreProperty() {
         return score;
     }
+
+    public ArrayList<Pair<String, Integer>> scores = new ArrayList<>();
 
     public void setScore(int score) {
         this.score.set(score);
@@ -471,10 +478,14 @@ public class Game {
      */
     public boolean isAlive() {
         boolean alive;
-        if (lives.get() >= 0) {
+        if (lives.get() > 0) {
             alive = true;
         } else {
             alive = false;
+            logger.info("Game over");
+            if (gameOverListener != null) {
+                Platform.runLater(() -> gameOverListener.setOnGameOver());
+            }
         }
         return alive;
     }
@@ -489,6 +500,10 @@ public class Game {
         setMultiplier(1);
         gameLoopListener();
         loop = this.timer.schedule(this::gameLoop, getTimerDelay(), TimeUnit.MILLISECONDS);
+    }
+
+    public void setOnGameOver(GameOverListener listener) {
+        gameOverListener = listener;
     }
 }
 
