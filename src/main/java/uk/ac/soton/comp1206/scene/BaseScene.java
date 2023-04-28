@@ -10,9 +10,18 @@ import uk.ac.soton.comp1206.ui.GameWindow;
  */
 public abstract class BaseScene {
 
+    /**
+     * gameWindow to be displayed in
+     */
     protected final GameWindow gameWindow;
 
+    /**
+     * Root gamepane
+     */
     protected GamePane root;
+    /**
+     * The scene
+     */
     protected Scene scene;
 
     /**

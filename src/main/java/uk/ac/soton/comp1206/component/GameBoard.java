@@ -61,6 +61,9 @@ public class GameBoard extends GridPane {
      */
     private BlockClickedListener blockClickedListener;
 
+    /**
+     * The listener to call when a right click has occured
+     */
     private RightClickedListener rightClickedListener;
     private GameBlock hover;
 
@@ -111,10 +114,6 @@ public class GameBoard extends GridPane {
         return blocks[x][y];
     }
 
-    public Grid getGrid() {
-        return grid;
-    }
-
     /**
      * Build the GameBoard by creating a block at every x and y column and row
      */
@@ -139,6 +138,7 @@ public class GameBoard extends GridPane {
      * Create a block at the given x and y position in the GameBoard
      * @param x column
      * @param y row
+     * @return the block created
      */
     protected GameBlock createBlock(int x, int y) {
         var blockWidth = width / cols;
@@ -170,6 +170,10 @@ public class GameBoard extends GridPane {
         return block;
     }
 
+    /**
+     * Calls method to appear hovered
+     * @param gameBlock gameBlock hovered
+     */
     public void hover(GameBlock gameBlock) {
         if (hover != null) {
             hover.hover(false);
@@ -186,6 +190,10 @@ public class GameBoard extends GridPane {
         this.blockClickedListener = listener;
     }
 
+    /**
+     * Set the listener to handle an event when a right click has occured
+     * @param listener listener to add
+     */
     public void setOnRightClicked(RightClickedListener listener) {
         this.rightClickedListener = listener;
     }
@@ -207,6 +215,10 @@ public class GameBoard extends GridPane {
         }
     }
 
+    /**
+     * Fades out all blocks passed in
+     * @param blockCoordinates takes in all block coords to be faded
+     */
     public void fadeOut(HashSet<GameBlockCoordinate> blockCoordinates) {
         for (GameBlockCoordinate coordinates : blockCoordinates) {
             getBlock(coordinates.getX(), coordinates.getY()).fadeOut();

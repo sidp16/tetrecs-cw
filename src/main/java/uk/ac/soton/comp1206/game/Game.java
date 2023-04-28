@@ -13,16 +13,13 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.util.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import uk.ac.soton.comp1206.Multimedia;
+import uk.ac.soton.comp1206.ui.Multimedia;
 import uk.ac.soton.comp1206.component.GameBlock;
 import uk.ac.soton.comp1206.component.GameBlockCoordinate;
-import uk.ac.soton.comp1206.component.GameBoard;
-import uk.ac.soton.comp1206.component.PieceBoard;
 import uk.ac.soton.comp1206.event.GameLoopListener;
 import uk.ac.soton.comp1206.event.GameOverListener;
 import uk.ac.soton.comp1206.event.LineClearedListener;
 import uk.ac.soton.comp1206.event.NextPieceListener;
-import uk.ac.soton.comp1206.ui.GameWindow;
 
 /**
  * The Game class handles the main logic, state and properties of the TetrECS game. Methods to manipulate the game state
@@ -58,9 +55,21 @@ public class Game {
 
     private ScheduledExecutorService timer = null;
 
+    /**
+     * Score variable
+     */
     private final IntegerProperty score;
+    /**
+     * Level variable
+     */
     private final IntegerProperty level;
+    /**
+     * Lives variable
+     */
     private final IntegerProperty lives;
+    /**
+     * Muiltplier variable
+     */
     private final IntegerProperty multiplier;
 
     private NextPieceListener nextPieceListener;
@@ -85,13 +94,13 @@ public class Game {
         return score.get();
     }
 
-    /**
-     * @return the score property
-     */
     public IntegerProperty scoreProperty() {
         return score;
     }
 
+    /**
+     * ArrayList of all local scores
+     */
     public ArrayList<Pair<String, Integer>> scores = new ArrayList<>();
 
     public void setScore(int score) {
@@ -99,7 +108,8 @@ public class Game {
     }
 
     /**
-     * @return the current level
+     * Gets the current level
+     * @return the current level is returned
      */
     public int getLevel() {
         return level.get();
@@ -113,10 +123,6 @@ public class Game {
         this.level.set(level);
     }
 
-    public int getLives() {
-        return lives.get();
-    }
-
     public IntegerProperty livesProperty() {
         return lives;
     }
@@ -125,25 +131,29 @@ public class Game {
         this.lives.set(lives);
     }
 
-    public int getMultiplier() {
-        return multiplier.get();
-    }
-
     public IntegerProperty multiplierProperty() {
         return multiplier;
     }
 
     /**
+     * Registers a class wanting to listen to if a next piece is played
      * @param listener any class implementing NextPieceListener is passed
      */
     public void registerNextPieceListener(NextPieceListener listener) {
         this.nextPieceListener = listener;
     }
 
+    /**
+     * @return returns the current piece
+     */
     public GamePiece getCurrentPiece() {
         return currentPiece;
     }
 
+    /**
+     * Returns the gamePiece object, followingPiece
+     * @return returns the following piece
+     */
     public GamePiece getFollowingPiece() {
         return followingPiece;
     }
@@ -184,6 +194,7 @@ public class Game {
     }
 
     /**
+     * Sets the multiplier to a specific value
      * @param multiplier sets the multiplier to the value passed into this parameter
      */
     public void setMultiplier(int multiplier) {
@@ -220,6 +231,9 @@ public class Game {
         gameLoopListener();
     }
 
+    /**
+     * Ends the game safely by shutting down the timer
+     */
     public void stop() {
         logger.info("Ending game");
         this.timer.shutdownNow();
@@ -324,13 +338,16 @@ public class Game {
         level.set(value);
     }
 
+    /**
+     * Stops the timer
+     */
     public void stopTimer() {
         this.timer.shutdownNow();
     }
 
     /**
-     * @param currentLevel takes in the current level the user is on
      * Plays an audio file indicating a level up
+     * @param currentLevel takes in the current level the user is on
      */
     public void levelSounds(int currentLevel) {
         if (currentLevel != oldLevel) {
@@ -344,6 +361,7 @@ public class Game {
     /**
      * Increments multiplier by 1 if > 0, resets if no lines cleared
      * @param linesCleared the number of lines cleared in the turn
+     * @param blocksToClear the number of blocks to clear
      */
     public void checkMultiplier(int linesCleared, HashSet<GameBlockCoordinate> blocksToClear) {
         if (linesCleared > 0) {
@@ -353,6 +371,34 @@ public class Game {
             }
         } else {
             resetMultiplier();
+        }
+    }
+
+    /**
+     * Clear the whole grid with 500 points
+     */
+    public void clearAll() {
+        if (score.get() >= 400) {
+            score.set(score.get() - 400);
+            grid.clear();
+            multiplier.set(multiplier.add(1).get());
+            audioPlayer.playAudioFile("explode.wav");
+            logger.info("Grid cleaned");
+        } else {
+            audioPlayer.playAudioFile("fail.wav");
+            logger.info("Not enough points");
+        }
+    }
+
+    public void addLife() {
+        if (score.get() >= 500) {
+            score.set(score.get() - 500);
+            lives.set(lives.get() + 1);
+            audioPlayer.playAudioFile("lifegain.wav");
+            logger.info("1 Life added");
+        } else {
+            audioPlayer.playAudioFile("fail.wav");
+            logger.info("Not enough points");
         }
     }
 
@@ -395,6 +441,7 @@ public class Game {
 
     /**
      * Rotates the current piece 90 degrees clockwise
+     * @param num number of rotations
      */
     public void rotateCurrentPiece(int num) {
         currentPiece.rotate(num);
@@ -436,6 +483,7 @@ public class Game {
     }
 
     /**
+     * Spawns a piece randomly
      * @return a GamePiece object, after creating a piece
      */
     public GamePiece spawnPiece() {
@@ -457,6 +505,7 @@ public class Game {
     }
 
     /**
+     * Calculates the timerDelay
      * @return the timer length dependent on which level you are currently on
      */
     public int getTimerDelay() {
@@ -468,12 +517,16 @@ public class Game {
         return delay;
     }
 
+    /**
+     * Removes a life from the user
+     */
     public void removeLife() {
         lives.set(lives.get() - 1);
         logger.info("Lost a life");
     }
 
     /**
+     * Checks if user is alive
      * @return returns a boolean, true if lives >= 0 and false if below 0
      */
     public boolean isAlive() {
@@ -502,6 +555,10 @@ public class Game {
         loop = this.timer.schedule(this::gameLoop, getTimerDelay(), TimeUnit.MILLISECONDS);
     }
 
+    /**
+     * Sets the listener
+     * @param listener listener from another class
+     */
     public void setOnGameOver(GameOverListener listener) {
         gameOverListener = listener;
     }

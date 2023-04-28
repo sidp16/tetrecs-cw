@@ -5,7 +5,6 @@ import java.util.Set;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
-import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -21,7 +20,7 @@ import javafx.scene.text.Text;
 import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import uk.ac.soton.comp1206.Multimedia;
+import uk.ac.soton.comp1206.ui.Multimedia;
 import uk.ac.soton.comp1206.component.GameBlock;
 import uk.ac.soton.comp1206.component.GameBlockCoordinate;
 import uk.ac.soton.comp1206.component.GameBoard;
@@ -39,24 +38,63 @@ import uk.ac.soton.comp1206.ui.GameWindow;
 public class ChallengeScene extends BaseScene implements NextPieceListener, RightClickedListener {
 
     private static final Logger logger = LogManager.getLogger(MenuScene.class);
+    /**
+     * The game state
+     */
     protected Game game;
 
+    /**
+     * Text for score
+     */
     private Text scoreLabel;
+    /**
+     * Text for the current level
+     */
     private Text levelLabel;
+    /**
+     * Text for the multiplier
+     */
     private Text multiplierLabel;
+    /**
+     * Text for the number of lives left
+     */
     private Text livesLabel;
 
+    /**
+     * The main tetris board
+     */
     protected GameBoard board;
+    /**
+     * The next piece, and the one after it - their respective boards
+     */
     protected PieceBoard nextPieceBoard, tertiaryBoard;
+    /**
+     * Text for the TETRECS title
+     */
     private Text titleLabel;
 
+    /**
+     * Separate Multimedia objects for audio and music
+     */
     private Multimedia audioPlayer, musicPlayer;
 
+    /**
+     * timerBar for the visual timer
+     */
     private Rectangle timerBar;
 
+    /**
+     * Timer box
+     */
     protected HBox timer;
 
+    /**
+     * The score value
+     */
     protected IntegerProperty score = new SimpleIntegerProperty(0);
+    /**
+     * High score value (used for animation)
+     */
     protected IntegerProperty hiscore = new SimpleIntegerProperty(0);
 
     /**
@@ -85,7 +123,7 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
         root = new GamePane(gameWindow.getWidth(), gameWindow.getHeight());
 
 
-        var challengePane = new StackPane();
+        StackPane challengePane = new StackPane();
         challengePane.setMaxWidth(gameWindow.getWidth());
         challengePane.setMaxHeight(gameWindow.getHeight());
         challengePane.getStyleClass().add("menu-background");
@@ -97,21 +135,21 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
         musicPlayer.playMusic("game.wav");
 
         // Vbox to hold the main board
-        var mainPane = new BorderPane();
+        BorderPane mainPane = new BorderPane();
         challengePane.getChildren().add(mainPane);
 
         // VBox to hold text objects
-        var leftPane = new VBox();
+        VBox leftPane = new VBox();
         leftPane.setAlignment(Pos.CENTER);
         leftPane.setPadding(new Insets(0,0,0,10));
 
         // Vbox to hold the board displaying the next piece, and following piece
-        var rightPane = new VBox(10);
+        VBox rightPane = new VBox(10);
         rightPane.setAlignment(Pos.CENTER);
         rightPane.setPadding(new Insets(0,10,0,0));
 
         // Top bar for socre, title and lives
-        var topBar = new HBox(50);
+        HBox topBar = new HBox(50);
         topBar.setAlignment(Pos.CENTER);
         BorderPane.setMargin(topBar, new Insets(10,0,0,0));
         mainPane.setTop(topBar);
@@ -124,7 +162,7 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
 
 
         // The secondary board displaying the next piece
-        var currentPieceText = new Text("Current Piece:");
+        Text currentPieceText = new Text("Current Piece:");
         currentPieceText.getStyleClass().add("heading");
         nextPieceBoard = new PieceBoard(3, 3,
             gameWindow.getWidth() / 6, gameWindow.getWidth() / 6);
@@ -143,15 +181,15 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
         buildText();
 
         // Score info
-        var scoreInfo = new VBox();
-        var scoreTitle = new Text("Score");
+        VBox scoreInfo = new VBox();
+        Text scoreTitle = new Text("Score");
         scoreTitle.getStyleClass().add("score");
         scoreInfo.setAlignment(Pos.CENTER);
         scoreInfo.getChildren().addAll(scoreTitle, scoreLabel);
 
         // Lives info
-        var livesInfo = new VBox();
-        var livesTitle = new Text("Lives");
+        VBox livesInfo = new VBox();
+        Text livesTitle = new Text("Lives");
         livesTitle.getStyleClass().add("lives");
         livesInfo.setAlignment(Pos.CENTER);
         livesInfo.getChildren().addAll(livesTitle,livesLabel);
@@ -162,7 +200,7 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
         titleImage.setPreserveRatio(true);
 
         // Title
-        var title = new VBox();
+        VBox title = new VBox();
         title.setAlignment(Pos.CENTER);
         title.getChildren().add(titleImage);
 
@@ -176,17 +214,33 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
         timer.getChildren().add(timerBar);
         mainPane.setBottom(timer);
 
+        var clearGridText = new Text("Clear grid");
+        clearGridText.getStyleClass().add("menuItem");
+        clearGridText.setOnMouseClicked(e -> game.clearAll());
+        var clearGridTextPoints = new Text("400 points");
+        clearGridTextPoints.getStyleClass().add("channelItem");
+
+        var addLifeText = new Text("Add Life");
+        addLifeText.getStyleClass().add("menuItem");
+        addLifeText.setOnMouseClicked(e -> game.addLife());
+        var addLifeTextPoints = new Text("500 points");
+        addLifeTextPoints.getStyleClass().add("channelItem");
+
 
         // Adding spacing and each side's children to the main pane
         rightPane.getChildren().addAll(currentPieceText,nextPieceBoard,nextPieceText, tertiaryBoard);
-        leftPane.getChildren().addAll(levelLabel, multiplierLabel);
-        leftPane.setSpacing(20);
+        leftPane.getChildren().addAll(levelLabel, multiplierLabel, clearGridText,clearGridTextPoints,
+            addLifeText,addLifeTextPoints);
+        leftPane.setSpacing(10);
         mainPane.setLeft(leftPane);
         mainPane.setRight(rightPane);
 
     }
 
 
+    /**
+     * @param allBlockCoordinates takes in a block coordinates that need to be cleared
+     */
     private void fadeLine(Set<GameBlockCoordinate> allBlockCoordinates) {
         board.fadeOut((HashSet<GameBlockCoordinate>) allBlockCoordinates);
         audioPlayer.playAudioFile("clear.wav");
@@ -194,6 +248,10 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
     }
 
 
+    /**
+     * Swaps the current piece with the one after
+     * @param gameBlock gameBlock passed
+     */
     private void swapPiece(GameBlock gameBlock) {
         game.swapCurrentPiece();
         nextPieceBoard.clear();
@@ -214,10 +272,16 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
         audioPlayer.playAudioFile("rotate.wav");
     }
 
+    /**
+     * Rotates the piece left
+     */
     private void rotatePieceLeft() {
         game.rotateCurrentPiece(3);
     }
 
+    /**
+     * Builds all text required for the challengeScene
+     */
     public void buildText() {
         scoreLabel = new Text();
         levelLabel = new Text();
@@ -293,6 +357,12 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
         });
     }
 
+    /**
+     * Animation to represent score going up
+     * @param observable represents a value that can change over time
+     * @param oldValue the old score value
+     * @param newValue the new score value
+     */
     protected void setScore(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
         if (newValue.intValue() > this.hiscore.get()) {
             this.hiscore.set(newValue.intValue());
@@ -316,12 +386,19 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
         tertiaryBoard.displayPiece(followingPiece);
     }
 
+    /**
+     * Rotates the piece right on a right click
+     */
     @Override
     public void onRightClicked() {
         game.rotateCurrentPiece(1);
         nextPiece(game.getCurrentPiece(), game.getFollowingPiece());
     }
 
+    /**
+     * Animates the timerBar by using a timeLine
+     * @param number the duration
+     */
     protected void timer(int number) {
         KeyValue start = new KeyValue(timerBar.widthProperty(), timer.getWidth());
         KeyValue green = new KeyValue(timerBar.fillProperty(), Color.GREEN);
@@ -338,6 +415,9 @@ public class ChallengeScene extends BaseScene implements NextPieceListener, Righ
         colourChange.play();
     }
 
+    /**
+     * @param key the key pressed by user
+     */
     private void keyboardInputs(KeyEvent key) {
         switch (key.getCode()) {
             case W:

@@ -74,11 +74,18 @@ public class GameWindow {
         Font.loadFont(getClass().getResourceAsStream("/style/Orbitron-ExtraBold.ttf"),32);
     }
 
+    /**
+     * Displays the instructions screen
+     */
     public void startInstructions() {
 
         loadScene(new InstructionsScene(this));
     }
 
+    /**
+     * Displays the score screen
+     * @param game game state
+     */
     public void startScores(Game game) {
         loadScene(new ScoresScene(this, game));
     }

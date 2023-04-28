@@ -63,7 +63,13 @@ public class GameBlock extends Canvas {
      * The value of this block (0 = empty, otherwise specifies the colour to render as)
      */
     private final IntegerProperty value = new SimpleIntegerProperty(0);
+    /**
+     * Whether the center of the pieceBoard should be shown
+     */
     private boolean center = false;
+    /**
+     * To check for hover
+     */
     private boolean hover = false;
 
     /**
@@ -174,6 +180,9 @@ public class GameBlock extends Canvas {
         gc.strokeRect(0,0,width,height);
     }
 
+    /**
+     * Animates the fadeOut when a line is cleared
+     */
     public void fadeOut() {
         AnimationTimer timer = new AnimationTimer() {
             double opacity = 1;
@@ -194,11 +203,18 @@ public class GameBlock extends Canvas {
     }
 
 
+    /**
+     * Paint the center in a light shade
+     */
     public void center() {
         this.center = true;
         paint();
     }
 
+    /**
+     * Paints the block as if it is being hovered on
+     * @param hover whether a hover has occured
+     */
     public void hover(boolean hover) {
         this.hover = hover;
         paint();

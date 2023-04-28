@@ -4,7 +4,6 @@ import javafx.animation.RotateTransition;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
@@ -12,8 +11,7 @@ import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.ac.soton.comp1206.App;
-import uk.ac.soton.comp1206.Multimedia;
-import uk.ac.soton.comp1206.game.Game;
+import uk.ac.soton.comp1206.ui.Multimedia;
 import uk.ac.soton.comp1206.ui.GamePane;
 import uk.ac.soton.comp1206.ui.GameWindow;
 
@@ -80,7 +78,7 @@ public class MenuScene extends BaseScene {
         rotater.play();
 
         // Menu items
-        var menuItems = new VBox(10);
+        VBox menuItems = new VBox(10);
         menuItems.setPadding(new Insets(0,0,20,0));
         menuItems.setAlignment(Pos.CENTER);
         mainPane.setCenter(menuItems);

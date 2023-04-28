@@ -31,33 +31,55 @@ import javafx.scene.text.Text;
 import javafx.util.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import uk.ac.soton.comp1206.Multimedia;
+import uk.ac.soton.comp1206.ui.Multimedia;
 import uk.ac.soton.comp1206.component.ScoresList;
 import uk.ac.soton.comp1206.game.Game;
 import uk.ac.soton.comp1206.ui.GamePane;
 import uk.ac.soton.comp1206.ui.GameWindow;
 
+/**
+ * The final scores scene after the game is over
+ */
 public class ScoresScene extends BaseScene {
 
   private static final Logger logger = LogManager.getLogger(ScoresScene.class);
+  /**
+   * The game state
+   */
   protected Game game;
 
   private BorderPane mainPane;
 
   private boolean getAllScores = true;
 
+  /**
+   * Name to enter if high score
+   */
   private StringProperty name = new SimpleStringProperty("");
+  /**
+   * Whether it is a new local high score
+   */
   private final BooleanProperty ifScore = new SimpleBooleanProperty(false);
 
+  /**
+   * Holds the current list of scores in the scene
+   */
   private ObservableList<Pair<String, Integer>> observableLocalScores;
 
+  /**
+   * Container for all UI elements
+   */
   private VBox centerBox;
   private boolean newHighScore = false;
 
+  /**
+   * Local score list
+   */
   private ScoresList localScores;
   private Multimedia audioPlayer, musicPlayer;
 
   /**
+   * Creates scoresScene
    * @param gameWindow the game window this will be displayed in
    * @param game       the final game state
    */
@@ -88,15 +110,15 @@ public class ScoresScene extends BaseScene {
 
     root = new GamePane(gameWindow.getWidth(), gameWindow.getHeight());
 
-    var scoresPane = new StackPane();
+    StackPane scoresPane = new StackPane();
     scoresPane.setMaxWidth(gameWindow.getWidth());
     scoresPane.setMaxHeight(gameWindow.getHeight());
     root.getChildren().add(scoresPane);
     scoresPane.getStyleClass().add("menu-background");
-    var mainPane = new BorderPane();
+    BorderPane mainPane = new BorderPane();
     scoresPane.getChildren().add(mainPane);
 
-    var topBar = new HBox();
+    HBox topBar = new HBox();
     topBar.setAlignment(Pos.CENTER);
     BorderPane.setMargin(topBar, new Insets(10, 0, 0, 0));
     mainPane.setTop(topBar);
@@ -111,11 +133,11 @@ public class ScoresScene extends BaseScene {
     centerBox.setSpacing(10);
     mainPane.setCenter(centerBox);
 
-    var highScoreText = new Text("High Scores");
+    Text highScoreText = new Text("High Scores");
     highScoreText.getStyleClass().add("title");
     highScoreText.visibleProperty().bind(ifScore);
 
-    var gridPane = new GridPane();
+    GridPane gridPane = new GridPane();
     gridPane.setAlignment(Pos.CENTER);
     gridPane.visibleProperty().bind(ifScore);
 
@@ -131,13 +153,13 @@ public class ScoresScene extends BaseScene {
     localScores.nameProperty.bind(name);
     localScores.scores.bind(localScore);
 
-    var bottomBar = new HBox(80);
+    HBox bottomBar = new HBox(80);
     bottomBar.setAlignment(Pos.CENTER);
     BorderPane.setMargin(bottomBar, new Insets(0, 0, 20, 0));
     mainPane.setBottom(bottomBar);
 
     // Menu option
-    var backText = new Text("Menu");
+    Text backText = new Text("Menu");
     backText.getStyleClass().add("menuItem");
     backText.setOnMouseClicked(e -> {
       gameWindow.startMenu();
@@ -146,6 +168,10 @@ public class ScoresScene extends BaseScene {
     bottomBar.getChildren().addAll(backText);
   }
 
+  /**
+   * Adds random scores if file does not exist
+   * @return loads scores into an ArrayList
+   */
   public static ArrayList<Pair<String, Integer>> loadScores() {
     ArrayList<Pair<String, Integer>> score = new ArrayList<>();
     File scoresFile = new File("scores.txt");
@@ -186,6 +212,10 @@ public class ScoresScene extends BaseScene {
     return score;
   }
 
+  /**
+   * Writes scores to file
+   * @param scores writes scores to file - scores.txt
+   */
   public static void writeScores(List<Pair<String, Integer>> scores) {
     scores.sort((x, y) -> (y.getValue()).compareTo(x.getValue()));
     try {
@@ -215,6 +245,9 @@ public class ScoresScene extends BaseScene {
   }
 
 
+  /**
+   * Checks for new high score in the top 10 of all entries
+   */
   public void newHighScore() {
     if (!game.scores.isEmpty()) {
       ifScore.set(true);
@@ -225,7 +258,7 @@ public class ScoresScene extends BaseScene {
     int scoreNumber = 0;
     int finalScoreNumber = scoreNumber;
     int currentScore = game.getScore();
-    var nameField = new TextField();
+    TextField nameField = new TextField();
     int lowestLocalScore = observableLocalScores.get(observableLocalScores.size() - 1).getValue();
     nameField.setMaxWidth(200);
     nameField.setPromptText("Enter your name");
@@ -254,7 +287,7 @@ public class ScoresScene extends BaseScene {
     }
     // New high score prompt
     if (newHighScore) {
-      var newScoreText = new Text("New Score Recorded!");
+      Text newScoreText = new Text("New Score Recorded!");
       newScoreText.getStyleClass().add("title");
       centerBox.getChildren().add(1, newScoreText);
 
@@ -269,7 +302,7 @@ public class ScoresScene extends BaseScene {
       centerBox.getChildren().add(2, nameField);
 
       // Confirm
-      var saveText = new Text("Confirm");
+      Text saveText = new Text("Confirm");
       saveText.getStyleClass().add("menuItem");
       saveText.setOnMouseClicked(e -> r.run());
       centerBox.getChildren().add(3, saveText);
@@ -284,6 +317,9 @@ public class ScoresScene extends BaseScene {
   }
 
 
+  /**
+   * Reveals all scores
+   */
   public void revealMethod() {
     if (getAllScores) {
       newHighScore();

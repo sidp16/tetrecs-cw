@@ -23,12 +23,24 @@ import org.apache.logging.log4j.Logger;
 public class ScoresList extends VBox {
   private static final Logger logger = LogManager.getLogger(ScoresList.class);
 
+  /**
+   * All local scores in a SimpleList to be easily utilised
+   */
   public final SimpleListProperty<Pair<String, Integer>> scores;
 
+  /**
+   * ArrayList of all scoreBoxes
+   */
   public final ArrayList<VBox> displayingScores = new ArrayList<>();
 
+  /**
+   * Name of user, if needed
+   */
   public StringProperty nameProperty = null;
 
+  /**
+   * Outputs a list of names and scores
+   */
   public ScoresList() {
     getStyleClass().add("scorelist");
     scores = new SimpleListProperty<>();
@@ -58,6 +70,9 @@ public class ScoresList extends VBox {
     logger.info("Creating list of scores");
   }
 
+  /**
+   * Reveals the scores and names in a sequential fashion, smoothly
+   */
   public void reveal() {
     ArrayList<Transition> transitionArrayList = new ArrayList<>();
     for (var score : displayingScores) {

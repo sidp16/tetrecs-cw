@@ -169,4 +169,13 @@ public class Grid {
             }
         }
     }
+
+    public void clear() {
+        for (var x = 0; x < getCols(); x++) {
+            for (var y = 0; y < getRows(); y++) {
+                set(x,y,0);
+            }
+        }
+    }
+
 }
