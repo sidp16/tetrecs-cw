@@ -1,1 +1,1 @@
-# tetrecs-cw
+# TetrECS
